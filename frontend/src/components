@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Index of /static/templates/spring-boot/for-model/frontend/src/components/</title>
+  </head>
+  <body>
+<h1>Index of /static/templates/spring-boot/for-model/frontend/src/components/</h1>
+<table><tr><td><code>(drwxr-xr-x)</code></td><td style="text-align: right; padding-left: 1em"><code></code></td><td style="padding-left: 1em"><a href="/static/templates/spring-boot/for-model/frontend/src/components/../">../</a></td></tr>
+<tr><td><code>(-rw-r--r--)</code></td><td style="text-align: right; padding-left: 1em"><code>9.6k</code></td><td style="padding-left: 1em"><a href="/static/templates/spring-boot/for-model/frontend/src/components/Entity.vue_">Entity.vue_</a></td></tr>
+<tr><td><code>(-rw-r--r--)</code></td><td style="text-align: right; padding-left: 1em"><code>5.7k</code></td><td style="padding-left: 1em"><a href="/static/templates/spring-boot/for-model/frontend/src/components/EntityManager.vue_">EntityManager.vue_</a></td></tr>
+<tr><td><code>(-rw-r--r--)</code></td><td style="text-align: right; padding-left: 1em"><code>835B</code></td><td style="padding-left: 1em"><a href="/static/templates/spring-boot/for-model/frontend/src/components/index.js">index.js</a></td></tr>
+<tr><td><code>(-rw-r--r--)</code></td><td style="text-align: right; padding-left: 1em"><code>5.1k</code></td><td style="padding-left: 1em"><a href="/static/templates/spring-boot/for-model/frontend/src/components/View.vue_">View.vue_</a></td></tr>
+</table>
+<br><address>Node.js v4.7.0/ <a href="https://github.com/jfhbrook/node-ecstatic">ecstatic</a> server running @ labs.msaez.io</address>
+</body></html>

@@ -3,22 +3,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apply
+  name: Registration
   labels:
-    app: apply
+    app: Registration
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: apply
+      app: Registration
   template:
     metadata:
       labels:
-        app: apply
+        app: Registration
     spec:
       containers:
-        - name: apply
-          image: username/apply:latest
+        - name: Registration
+          image: username/Registration:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -43,22 +43,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payment
+  name: Payment
   labels:
-    app: payment
+    app: Payment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: payment
+      app: Payment
   template:
     metadata:
       labels:
-        app: payment
+        app: Payment
     spec:
       containers:
-        - name: payment
-          image: username/payment:latest
+        - name: Payment
+          image: username/Payment:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -83,22 +83,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: applymanager
+  name: RegisterMaster
   labels:
-    app: applymanager
+    app: RegisterMaster
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: applymanager
+      app: RegisterMaster
   template:
     metadata:
       labels:
-        app: applymanager
+        app: RegisterMaster
     spec:
       containers:
-        - name: applymanager
-          image: username/applymanager:latest
+        - name: RegisterMaster
+          image: username/RegisterMaster:latest
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -165,15 +165,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: apply
+  name: Registration
   labels:
-    app: apply
+    app: Registration
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: apply
+    app: Registration
 
 
 ---
@@ -182,15 +182,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: payment
+  name: Payment
   labels:
-    app: payment
+    app: Payment
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: payment
+    app: Payment
 
 
 ---
@@ -199,15 +199,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: applymanager
+  name: RegisterMaster
   labels:
-    app: applymanager
+    app: RegisterMaster
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: applymanager
+    app: RegisterMaster
 
 
 ---

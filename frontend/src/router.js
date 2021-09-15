@@ -5,11 +5,11 @@ import Router from 'vue-router'
 Vue.use(Router);
 
 
-import ApplyManager from "./components/ApplyManager"
+import RegistrationManager from "./components/RegistrationManager"
 
 import PayManager from "./components/PayManager"
 
-import ApplyManagerManager from "./components/ApplyManagerManager"
+import RegisterMasterManager from "./components/RegisterMasterManager"
 
 
 import Dashboard from "./components/Dashboard"
@@ -18,9 +18,9 @@ export default new Router({
     base: process.env.BASE_URL,
     routes: [
             {
-                path: '/applies',
-                name: 'ApplyManager',
-                component: ApplyManager
+                path: '/registrations',
+                name: 'RegistrationManager',
+                component: RegistrationManager
             },
 
             {
@@ -30,9 +30,9 @@ export default new Router({
             },
 
             {
-                path: '/applyManagers',
-                name: 'ApplyManagerManager',
-                component: ApplyManagerManager
+                path: '/registerMasters',
+                name: 'RegisterMasterManager',
+                component: RegisterMasterManager
             },
 
 

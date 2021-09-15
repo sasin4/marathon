@@ -18,21 +18,22 @@ public class DashboardViewHandler {
     private DashboardRepository dashboardRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whenApplied_then_CREATE_1 (@Payload Applied applied) {
+    public void whenPayRequested_then_CREATE_1 (@Payload PayRequested payRequested) {
         try {
 
-            if (!applied.validate()) return;
+            if (!payRequested.validate()) return;
 
             // view 객체 생성
             Dashboard dashboard = new Dashboard();
             // view 객체에 이벤트의 Value 를 set 함
-            dashboard.setId(applied.getId());
-            dashboard.setApplicantName(applied.getApplicantName());
-            dashboard.setPhoneNo(applied.getPhoneNo());
-            dashboard.setAddress(applied.getAddress());
-            dashboard.setStatus(applied.getStatus());
-            dashboard.setTopSize(applied.getTopSize());
-            dashboard.setAmount(applied.getAmount());
+            dashboard.setId(payRequested.getId());
+            dashboard.setName(payRequested.getName());
+            dashboard.setPhoneNo(payRequested.getPhoneNo());
+            dashboard.setAddress(payRequested.getAddress());
+            dashboard.setStatus(payRequested.getStatus());
+            dashboard.setTopSize(payRequested.getTopSize());
+            dashboard.setBottomSize(payRequested.getBottomSize());
+            dashboard.setAmount(payRequested.getAmount());
             // view 레파지 토리에 save
             dashboardRepository.save(dashboard);
 
@@ -43,16 +44,16 @@ public class DashboardViewHandler {
 
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whenPayMade_then_UPDATE_1(@Payload PayMade payMade) {
+    public void whenPayCompleted_then_UPDATE_1(@Payload PayCompleted payCompleted) {
         try {
-            if (!payMade.validate()) return;
+            if (!payCompleted.validate()) return;
                 // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(payMade.getApplyId());
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(payCompleted.getRegisterId());
 
             if( dashboardOptional.isPresent()) {
                  Dashboard dashboard = dashboardOptional.get();
             // view 객체에 이벤트의 eventDirectValue 를 set 함
-                 dashboard.setPayStatus(payMade.getPayStatus());
+                 dashboard.setPayStatus(payCompleted.getPayStatus());
                 // view 레파지 토리에 save
                  dashboardRepository.save(dashboard);
                 }
@@ -67,52 +68,12 @@ public class DashboardViewHandler {
         try {
             if (!payCancelled.validate()) return;
                 // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(payCancelled.getApplyId());
+            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(payCancelled.getRegisterId());
 
             if( dashboardOptional.isPresent()) {
                  Dashboard dashboard = dashboardOptional.get();
             // view 객체에 이벤트의 eventDirectValue 를 set 함
                  dashboard.setPayStatus(payCancelled.getPayStatus());
-                // view 레파지 토리에 save
-                 dashboardRepository.save(dashboard);
-                }
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whenApplySaved_then_UPDATE_3(@Payload ApplySaved applySaved) {
-        try {
-            if (!applySaved.validate()) return;
-                // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(applySaved.getApplyId());
-
-            if( dashboardOptional.isPresent()) {
-                 Dashboard dashboard = dashboardOptional.get();
-            // view 객체에 이벤트의 eventDirectValue 를 set 함
-                 dashboard.setDeliveryStatus(applySaved.getDeliveryStatus());
-                // view 레파지 토리에 save
-                 dashboardRepository.save(dashboard);
-                }
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whenApplyCancelled_then_UPDATE_4(@Payload ApplyCancelled applyCancelled) {
-        try {
-            if (!applyCancelled.validate()) return;
-                // view 객체 조회
-            Optional<Dashboard> dashboardOptional = dashboardRepository.findById(applyCancelled.getApplyId());
-
-            if( dashboardOptional.isPresent()) {
-                 Dashboard dashboard = dashboardOptional.get();
-            // view 객체에 이벤트의 eventDirectValue 를 set 함
-                 dashboard.setDeliveryStatus(applyCancelled.getDeliveryStatus());
                 // view 레파지 토리에 save
                  dashboardRepository.save(dashboard);
                 }

@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Payment
+  name: Registration
   labels:
-    app: Payment
+    app: Registration
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: Payment
+      app: Registration
   template:
     metadata:
       labels:
-        app: Payment
+        app: Registration
     spec:
       containers:
-        - name: Payment
-          image: username/Payment:latest
+        - name: Registration
+          image: username/Registration:latest
           ports:
             - containerPort: 8080
           readinessProbe:

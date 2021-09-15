@@ -1,12 +1,12 @@
 package marathon;
 
-public class PayCancelled extends AbstractEvent {
+public class RegisterCancelled extends AbstractEvent {
 
     private Long id;
-    private Long registerId;
     private String name;
     private String phoneNo;
-    private String payStatus;
+    private String status;
+    private Integer amount;
 
     public Long getId() {
         return id;
@@ -14,13 +14,6 @@ public class PayCancelled extends AbstractEvent {
 
     public void setId(Long id) {
         this.id = id;
-    }
-    public Long getRegisterId() {
-        return registerId;
-    }
-
-    public void setRegisterId(Long registerId) {
-        this.registerId = registerId;
     }
     public String getName() {
         return name;
@@ -36,11 +29,18 @@ public class PayCancelled extends AbstractEvent {
     public void setPhoneNo(String phoneNo) {
         this.phoneNo = phoneNo;
     }
-    public String getPayStatus() {
-        return payStatus;
+    public String getStatus() {
+        return status;
     }
 
-    public void setPayStatus(String payStatus) {
-        this.payStatus = payStatus;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

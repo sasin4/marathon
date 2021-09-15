@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Date;
 
 @Entity
-@Table(name="Pay_table")
-public class Pay {
+@Table(name="RegisterMaster_table")
+public class RegisterMaster {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -16,20 +16,19 @@ public class Pay {
     private String name;
     private String phoneNo;
     private String address;
-    private String payStatus;
+    private String deliveryStatus;
     private String topSize;
     private String bottomSize;
-    private Integer amount;
 
     @PostPersist
     public void onPostPersist(){
-        PayCompleted payCompleted = new PayCompleted();
-        BeanUtils.copyProperties(this, payCompleted);
-        payCompleted.publishAfterCommit();
+        RegisterComplete registerComplete = new RegisterComplete();
+        BeanUtils.copyProperties(this, registerComplete);
+        registerComplete.publishAfterCommit();
 
-        PayCancelled payCancelled = new PayCancelled();
-        BeanUtils.copyProperties(this, payCancelled);
-        payCancelled.publishAfterCommit();
+        RegisterRemoved registerRemoved = new RegisterRemoved();
+        BeanUtils.copyProperties(this, registerRemoved);
+        registerRemoved.publishAfterCommit();
 
     }
 
@@ -68,12 +67,12 @@ public class Pay {
     public void setAddress(String address) {
         this.address = address;
     }
-    public String getPayStatus() {
-        return payStatus;
+    public String getDeliveryStatus() {
+        return deliveryStatus;
     }
 
-    public void setPayStatus(String payStatus) {
-        this.payStatus = payStatus;
+    public void setDeliveryStatus(String deliveryStatus) {
+        this.deliveryStatus = deliveryStatus;
     }
     public String getTopSize() {
         return topSize;
@@ -88,13 +87,6 @@ public class Pay {
 
     public void setBottomSize(String bottomSize) {
         this.bottomSize = bottomSize;
-    }
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
     }
 
 

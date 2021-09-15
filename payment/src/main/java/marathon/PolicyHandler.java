@@ -13,11 +13,11 @@ public class PolicyHandler{
     @Autowired PayRepository payRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverCancelled_PayCancel(@Payload Cancelled cancelled){
+    public void wheneverRegisterCancelled_PayCancel(@Payload RegisterCancelled registerCancelled){
 
-        if(!cancelled.validate()) return;
+        if(!registerCancelled.validate()) return;
 
-        System.out.println("\n\n##### listener PayCancel : " + cancelled.toJson() + "\n\n");
+        System.out.println("\n\n##### listener PayCancel : " + registerCancelled.toJson() + "\n\n");
 
 
 

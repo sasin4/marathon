@@ -10,7 +10,7 @@ public class Dashboard {
         @Id
         @GeneratedValue(strategy=GenerationType.AUTO)
         private Long id;
-        private String applicantName;
+        private String name;
         private String phoneNo;
         private String address;
         private String status;
@@ -28,12 +28,12 @@ public class Dashboard {
         public void setId(Long id) {
             this.id = id;
         }
-        public String getApplicantName() {
-            return applicantName;
+        public String getName() {
+            return name;
         }
 
-        public void setApplicantName(String applicantName) {
-            this.applicantName = applicantName;
+        public void setName(String name) {
+            this.name = name;
         }
         public String getPhoneNo() {
             return phoneNo;
