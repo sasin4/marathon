@@ -23,14 +23,15 @@ public class Pay {
 
     @PostPersist
     public void onPostPersist(){
+        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$pay.java");
         PayCompleted payCompleted = new PayCompleted();
         BeanUtils.copyProperties(this, payCompleted);
         payCompleted.publishAfterCommit();
-
+/*
         PayCancelled payCancelled = new PayCancelled();
         BeanUtils.copyProperties(this, payCancelled);
         payCancelled.publishAfterCommit();
-
+*/
     }
 
     public Long getId() {

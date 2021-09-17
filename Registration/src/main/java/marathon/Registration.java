@@ -31,12 +31,21 @@ public class Registration {
 
         marathon.external.Pay pay = new marathon.external.Pay();
         // mappings goes here
-        RegistrationApplication.applicationContext.getBean(marathon.external.PayService.class)
-            .payRequest(pay);
+        pay.setAddress(this.address);
+        pay.setAmount(this.amount);
+        pay.setBottomSize(this.bottomSize);
+        pay.setName(this.name);
+        pay.setPhoneNo(this.phoneNo);
+        pay.setTopSize(this.topSize);
+        System.out.println("##########################Registration");
+        RegistrationApplication.applicationContext.getBean(marathon.external.PayService.class).payRequest(pay);
+        System.out.println("##########################After");
 
+        /*
         RegisterCancelled registerCancelled = new RegisterCancelled();
         BeanUtils.copyProperties(this, registerCancelled);
         registerCancelled.publishAfterCommit();
+        */
 
     }
 
