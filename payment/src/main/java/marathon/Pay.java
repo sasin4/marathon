@@ -16,6 +16,7 @@ public class Pay {
     private String name;
     private String phoneNo;
     private String address;
+    private String registerStatus;
     private String payStatus;
     private String topSize;
     private String bottomSize;
@@ -23,9 +24,21 @@ public class Pay {
 
     @PostPersist
     public void onPostPersist(){
-        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$pay.java");
+        System.out.println("############################## Registration payRequest -> pay.java");
         PayCompleted payCompleted = new PayCompleted();
         BeanUtils.copyProperties(this, payCompleted);
+
+        System.out.println("id : "+ payCompleted.getId());
+        System.out.println("name : "+ payCompleted.getName());
+        System.out.println("phoneNo : "+ payCompleted.getPhoneNo());
+        System.out.println("address : "+ payCompleted.getAddress());
+        System.out.println("payStatus : "+ payCompleted.getPayStatus());
+        System.out.println("registerStatus : "+ payCompleted.getRegisterStatus());
+        System.out.println("topSize : "+ payCompleted.getTopSize());
+        System.out.println("bottomSize : "+ payCompleted.getBottomSize());
+        System.out.println("amount : "+ payCompleted.getAmount());
+        payCompleted.setPayStatus("COMPLETE");
+
         payCompleted.publishAfterCommit();
 /*
         PayCancelled payCancelled = new PayCancelled();
@@ -96,6 +109,14 @@ public class Pay {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public String getRegisterStatus() {
+        return this.registerStatus;
+    }
+
+    public void setRegisterStatus(String registerStatus) {
+        this.registerStatus = registerStatus;
     }
 
 

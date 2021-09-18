@@ -17,7 +17,7 @@ public class PolicyHandler{
 
         if(!payCompleted.validate()) return;
 
-        System.out.println("\n\n##### listener UpdaeSms : " + payCompleted.toJson() + "\n\n");
+        System.out.println("\n\n##### listener UpdaeSms PayCompleted : " + payCompleted.toJson() + "\n\n");
 
 
 
@@ -31,7 +31,7 @@ public class PolicyHandler{
 
         if(!payCancelled.validate()) return;
 
-        System.out.println("\n\n##### listener UpdaeSms : " + payCancelled.toJson() + "\n\n");
+        System.out.println("\n\n##### listener UpdaeSms PayCancelled : " + payCancelled.toJson() + "\n\n");
 
 
 
@@ -45,7 +45,7 @@ public class PolicyHandler{
 
         if(!registerComplete.validate()) return;
 
-        System.out.println("\n\n##### listener UpdaeSms : " + registerComplete.toJson() + "\n\n");
+        System.out.println("\n\n##### listener UpdaeSms RegisterComplete : " + registerComplete.toJson() + "\n\n");
 
 
 
@@ -59,7 +59,7 @@ public class PolicyHandler{
 
         if(!registerRemoved.validate()) return;
 
-        System.out.println("\n\n##### listener UpdaeSms : " + registerRemoved.toJson() + "\n\n");
+        System.out.println("\n\n##### listener UpdaeSms RegisterRemoved: " + registerRemoved.toJson() + "\n\n");
 
 
 

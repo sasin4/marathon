@@ -31,15 +31,46 @@ public class Registration {
 
         marathon.external.Pay pay = new marathon.external.Pay();
         // mappings goes here
-        pay.setAddress(this.address);
-        pay.setAmount(this.amount);
-        pay.setBottomSize(this.bottomSize);
+        pay.setId(this.id);
         pay.setName(this.name);
         pay.setPhoneNo(this.phoneNo);
+        pay.setAddress(this.address);
+        pay.setAmount(this.amount);
+        pay.setRegisterStatus("REGISTERED");
         pay.setTopSize(this.topSize);
-        System.out.println("##########################Registration");
-        RegistrationApplication.applicationContext.getBean(marathon.external.PayService.class).payRequest(pay);
-        System.out.println("##########################After");
+        pay.setBottomSize(this.bottomSize);
+        pay.setAmount(this.amount);
+        
+        
+        System.out.println("########################## BEFORE Registration->payRequest");
+        System.out.println("id : "+ this.id);
+        System.out.println("name : "+ this.name);
+        System.out.println("phoneNo : "+ this.phoneNo);
+        System.out.println("address : "+ this.address);
+        System.out.println("status : "+ this.status);
+        System.out.println("topSize : "+ this.topSize);
+        System.out.println("bottomSize : "+ this.bottomSize);
+        System.out.println("amount : "+ this.amount);
+
+        boolean result = RegistrationApplication.applicationContext.getBean(marathon.external.PayService.class).payRequest(pay);
+        
+        if(result) {
+        	System.out.println("########## 결제가 완료되었습니다 ############");
+        } else {
+            System.out.println("########## 결제가 실패하였습니다 ############");
+        }  
+
+        System.out.println("########################## AFTER Registration->payRequest");
+
+        System.out.println("id : "+ pay.getId());
+        System.out.println("name : "+ pay.getName());
+        System.out.println("phoneNo : "+ pay.getPhoneNo());
+        System.out.println("address : "+ pay.getAddress());
+        System.out.println("payStatus : "+ pay.getPayStatus());
+        System.out.println("registerStatus : "+ pay.getRegisterStatus());
+        System.out.println("topSize : "+ pay.getTopSize());
+        System.out.println("bottomSize : "+ pay.getBottomSize());
+        System.out.println("amount : "+ pay.getAmount());
 
         /*
         RegisterCancelled registerCancelled = new RegisterCancelled();
@@ -48,6 +79,17 @@ public class Registration {
         */
 
     }
+
+    @PostUpdate
+    public void onPostUpdate() {
+    	if (this.status.equals("CANCEL")) {    
+	    	RegisterCancelled registrationCancelled = new RegisterCancelled();
+	        BeanUtils.copyProperties(this, registrationCancelled);
+	        registrationCancelled.publishAfterCommit();
+
+			//registrationCancelled.saveJasonToPvc(registrationCancelled.toJson());
+    	}
+    }    
 
     public Long getId() {
         return id;

@@ -1,8 +1,6 @@
 package marathon;
 
 import marathon.config.kafka.KafkaProcessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -16,15 +14,14 @@ public class PolicyHandler{
     public void wheneverRegisterCancelled_PayCancel(@Payload RegisterCancelled registerCancelled){
 
         if(!registerCancelled.validate()) return;
-
         System.out.println("\n\n##### listener PayCancel : " + registerCancelled.toJson() + "\n\n");
 
-
-
-        // Sample Logic //
-        // Pay pay = new Pay();
-        // payRepository.save(pay);
-
+        if (registerCancelled.getStatus().equals("CANCEL")) {
+        	Pay pay = payRepository.findByRegisterId(registerCancelled.getId());
+        	pay.setPayStatus("CANCEL");
+        	pay.setRegisterStatus("CANCEL");
+        	payRepository.save(pay);        	
+        }  
     }
 
 

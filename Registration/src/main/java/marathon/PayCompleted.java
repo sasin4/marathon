@@ -8,6 +8,7 @@ public class PayCompleted extends AbstractEvent {
     private String phoneNo;
     private String address;
     private String payStatus;
+    private String registerStatus;
     private String topSize;
     private String bottomSize;
     private Integer amount;
@@ -74,5 +75,13 @@ public class PayCompleted extends AbstractEvent {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public String getRegisterStatus() {
+        return this.registerStatus;
+    }
+
+    public void setRegisterStatus(String registerStatus) {
+        this.registerStatus = registerStatus;
     }
 }

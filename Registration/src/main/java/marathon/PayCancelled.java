@@ -7,6 +7,7 @@ public class PayCancelled extends AbstractEvent {
     private String name;
     private String phoneNo;
     private String payStatus;
+    private String registerStatus;
 
     public Long getId() {
         return id;
@@ -42,5 +43,13 @@ public class PayCancelled extends AbstractEvent {
 
     public void setPayStatus(String payStatus) {
         this.payStatus = payStatus;
+    }
+    
+    public String getRegisterStatus() {
+        return this.registerStatus;
+    }
+
+    public void setRegisterStatus(String registerStatus) {
+        this.registerStatus = registerStatus;
     }
 }
