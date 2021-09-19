@@ -1,14 +1,13 @@
 package marathon;
 
 import marathon.config.kafka.KafkaProcessor;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class DashboardViewHandler {
@@ -50,15 +49,14 @@ public class DashboardViewHandler {
                 // view 객체 조회
             Optional<Dashboard> dashboardOptional = dashboardRepository.findById(payCompleted.getRegisterId());
 
-            if( dashboardOptional.isPresent()) {
-                 Dashboard dashboard = dashboardOptional.get();
             // view 객체에 이벤트의 eventDirectValue 를 set 함
-                 dashboard.setPayStatus(payCompleted.getPayStatus());
+            if( dashboardOptional.isPresent()) {
+                Dashboard dashboard = dashboardOptional.get();
+                dashboard.setPayStatus(payCompleted.getPayStatus());
                 // view 레파지 토리에 save
-                 dashboardRepository.save(dashboard);
-                }
-
-
+                dashboardRepository.save(dashboard);
+            }
+            
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -70,14 +68,13 @@ public class DashboardViewHandler {
                 // view 객체 조회
             Optional<Dashboard> dashboardOptional = dashboardRepository.findById(payCancelled.getRegisterId());
 
-            if( dashboardOptional.isPresent()) {
-                 Dashboard dashboard = dashboardOptional.get();
             // view 객체에 이벤트의 eventDirectValue 를 set 함
-                 dashboard.setPayStatus(payCancelled.getPayStatus());
+            if( dashboardOptional.isPresent()) {
+                Dashboard dashboard = dashboardOptional.get();
+                dashboard.setPayStatus(payCancelled.getPayStatus());
                 // view 레파지 토리에 save
-                 dashboardRepository.save(dashboard);
-                }
-
+                dashboardRepository.save(dashboard);
+            }
 
         }catch (Exception e){
             e.printStackTrace();
