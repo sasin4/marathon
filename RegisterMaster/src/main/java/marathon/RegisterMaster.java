@@ -22,15 +22,23 @@ public class RegisterMaster {
 
     @PostPersist
     public void onPostPersist(){
+        System.out.println("############################## RegisterMaster PostPersist");
         RegisterComplete registerComplete = new RegisterComplete();
         BeanUtils.copyProperties(this, registerComplete);
         registerComplete.publishAfterCommit();
 
-        RegisterRemoved registerRemoved = new RegisterRemoved();
-        BeanUtils.copyProperties(this, registerRemoved);
-        registerRemoved.publishAfterCommit();
-
     }
+
+    @PostUpdate
+    public void onPostUpdate() {
+        System.out.println("############################## RegisterMaster PostUpdate");
+    	if (this.deliveryStatus.equals("CANCEL")) {    
+            RegisterRemoved registerRemoved = new RegisterRemoved();
+            BeanUtils.copyProperties(this, registerRemoved);
+            registerRemoved.publishAfterCommit();
+
+    	}
+    }     
 
     public Long getId() {
         return id;

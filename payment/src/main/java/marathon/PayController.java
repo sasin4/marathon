@@ -19,7 +19,7 @@ import java.util.List;
 	//@ApiOperation(value = "결제 진행하기")
 	@PostMapping("/request")
 	public boolean requestPay(@RequestBody Pay pay) {
-        System.out.println("################################### Received /pay/request/");
+        System.out.println("################################### PayController: /pays/request");
 		pay.setPayStatus("COMPLETE");
 		pay.setRegisterId(pay.getId());
 		Pay savedPay = payRepository.save(pay);

@@ -1,8 +1,6 @@
 package marathon;
 
 import marathon.config.kafka.KafkaProcessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -16,28 +14,36 @@ public class PolicyHandler{
     public void wheneverPayCompleted_SaveRegister(@Payload PayCompleted payCompleted){
 
         if(!payCompleted.validate()) return;
-
+        System.out.println("\n\n##### RegisterMaster PolicyHandler");
         System.out.println("\n\n##### listener SaveRegister : " + payCompleted.toJson() + "\n\n");
 
+        RegisterMaster registerMaster = new RegisterMaster();
+        registerMaster.setRegisterId(payCompleted.getRegisterId());
+        registerMaster.setName(payCompleted.getName());
+        registerMaster.setAddress(payCompleted.getAddress());     
+        registerMaster.setPhoneNo(payCompleted.getPhoneNo());
+        registerMaster.setTopSize(payCompleted.getTopSize());
+        registerMaster.setBottomSize(payCompleted.getBottomSize());
+        
+        registerMaster.setDeliveryStatus("DELIVERED");
+        registerMasterRepository.save(registerMaster);
 
-
-        // Sample Logic //
-        // RegisterMaster registerMaster = new RegisterMaster();
-        // registerMasterRepository.save(registerMaster);
 
     }
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverPayCancelled_CancelRegister(@Payload PayCancelled payCancelled){
 
         if(!payCancelled.validate()) return;
-
+        System.out.println("\n\n##### RegisterMaster PolicyHandler");
         System.out.println("\n\n##### listener CancelRegister : " + payCancelled.toJson() + "\n\n");
+        System.out.println("\n\n##### payCancelled.getPayStatus() : " +payCancelled.getPayStatus());
+        System.out.println("\n\n##### payCancelled.getId() : " + payCancelled.getId());
 
-
-
-        // Sample Logic //
-        // RegisterMaster registerMaster = new RegisterMaster();
-        // registerMasterRepository.save(registerMaster);
+        if (payCancelled.getPayStatus().equals("CANCEL")) {
+        	RegisterMaster registerMaster = registerMasterRepository.findByRegisterId(payCancelled.getId());
+        	registerMaster.setDeliveryStatus("CANCEL");
+        	registerMasterRepository.save(registerMaster);
+        }    
 
     }
 

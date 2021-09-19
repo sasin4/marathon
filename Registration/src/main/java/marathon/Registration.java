@@ -42,7 +42,7 @@ public class Registration {
         pay.setAmount(this.amount);
         
         
-        System.out.println("########################## BEFORE Registration->payRequest");
+        System.out.println("########################## Registration.java -> PostPersist -> payRequest");
         System.out.println("id : "+ this.id);
         System.out.println("name : "+ this.name);
         System.out.println("phoneNo : "+ this.phoneNo);
@@ -59,8 +59,6 @@ public class Registration {
         } else {
             System.out.println("########## 결제가 실패하였습니다 ############");
         }  
-
-        System.out.println("########################## AFTER Registration->payRequest");
 
         System.out.println("id : "+ pay.getId());
         System.out.println("name : "+ pay.getName());

@@ -5,6 +5,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(collectionResourceRel="registerMasters", path="registerMasters")
 public interface RegisterMasterRepository extends PagingAndSortingRepository<RegisterMaster, Long>{
-
-
+    RegisterMaster findByRegisterId(Long registerId);
 }

@@ -5,6 +5,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(collectionResourceRel="pays", path="pays")
 public interface PayRepository extends PagingAndSortingRepository<Pay, Long>{
-//public interface PayRepository extends JpaRepository<Pay, Long>{
     Pay findByRegisterId(Long registerId);
 }

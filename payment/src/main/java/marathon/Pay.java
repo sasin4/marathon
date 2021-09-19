@@ -24,7 +24,7 @@ public class Pay {
 
     @PostPersist
     public void onPostPersist(){
-        System.out.println("############################## Registration payRequest -> pay.java");
+        System.out.println("############################## Pay PostPersist");
         PayCompleted payCompleted = new PayCompleted();
         BeanUtils.copyProperties(this, payCompleted);
 
@@ -45,6 +45,16 @@ public class Pay {
         BeanUtils.copyProperties(this, payCancelled);
         payCancelled.publishAfterCommit();
 */
+    }
+    @PostUpdate
+    public void onPostUpdate(){
+        System.out.println("############################## Pay onPostUpdate1");
+        if(this.payStatus.equals("CANCEL")){
+            System.out.println("############################## Pay onPostUpdate2");
+            PayCancelled payCancelled = new PayCancelled();
+            BeanUtils.copyProperties(this, payCancelled);
+            payCancelled.publishAfterCommit();
+        }
     }
 
     public Long getId() {
