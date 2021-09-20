@@ -9,6 +9,7 @@ public class Dashboard {
         @Id
         @GeneratedValue(strategy=GenerationType.AUTO)
         private Long id;
+        private long registerId;
         private String name;
         private String phoneNo;
         private String address;
@@ -89,6 +90,14 @@ public class Dashboard {
 
         public void setPayStatus(String payStatus) {
             this.payStatus = payStatus;
+        }
+
+        public long getRegisterId() {
+            return this.registerId;
+        }
+
+        public void setRegisterId(long registerId) {
+            this.registerId = registerId;
         }
 
 }

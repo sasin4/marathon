@@ -40,6 +40,15 @@ spring:
         event-out:
           destination: marathon
           contentType: application/json
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 610          
 
 logging:
   level:
@@ -51,6 +60,20 @@ server:
 
 spring:
   profiles: docker
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:  
   cloud:
     stream:
       kafka:
@@ -72,3 +95,19 @@ spring:
         event-out:
           destination: marathon
           contentType: application/json
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 610
+
+api:
+  url:
+    pay: http://pay:8080/pay
+
+server:
+  port: 8080  #for cloud          
