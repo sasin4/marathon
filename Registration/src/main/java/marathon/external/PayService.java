@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.Date;
 
 //@FeignClient(name="Payment", url="http://localhost:8082")
-@FeignClient(name="Payment", url="http://localhost:8082/pays", fallback = PayServiceFallback.class)
+@FeignClient(name="pays", url="http://localhost:8082/pays")
 public interface PayService {
     //@RequestMapping(method= RequestMethod.GET, path="/pays")
     @RequestMapping(method= RequestMethod.GET, path="/request")
