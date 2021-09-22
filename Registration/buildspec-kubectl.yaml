@@ -40,7 +40,6 @@ phases:
       - kubectl config set-cluster k8s --server="$KUBE_URL" --insecure-skip-tls-verify=true
       - kubectl config set-credentials admin --token="$KUBE_TOKEN"
       - kubectl config set-context default --cluster=k8s --user=admin
-<<<<<<< HEAD
       - kubectl config use-context default
       - |
           cat <<EOF | kubectl apply -f -
@@ -132,8 +131,6 @@ phases:
                   type: Utilization
                   averageUtilization: 50
           EOF
-=======
->>>>>>> aaf27ac1ac995806fe66ef7d802dff3094fe9fb3
 cache:
   paths:
     - '/root/.m2/**/*'
