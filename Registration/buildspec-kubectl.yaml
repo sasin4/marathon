@@ -46,36 +46,36 @@ phases:
           apiVersion: v1
           kind: Service
           metadata:
-            name: $_POD_NAME
+            name: Registration
             labels:
-              app: $_POD_NAME
+              app: Registration
           spec:
             ports:
               - port: 8080
                 targetPort: 8080
             selector:
-              app: $_POD_NAME
+              app: Registration
           EOF
       - |
           cat  <<EOF | kubectl apply -f -
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: $_POD_NAME
+            name: Registration
             labels:
-              app: $_POD_NAME
+              app: Registration
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: $_POD_NAME
+                app: Registration
             template:
               metadata:
                 labels:
-                  app: $_POD_NAME
+                  app: Registration
               spec:
                 containers:
-                  - name: $_POD_NAME
+                  - name: Registration
                     image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$_PROJECT_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
                     ports:
                       - containerPort: 8080
@@ -120,7 +120,7 @@ phases:
             scaleTargetRef:
               apiVersion: apps/v1
               kind: Deployment
-              name: $_POD_NAME
+              name: Registration
             minReplicas: 1
             maxReplicas: 10
             metrics:
