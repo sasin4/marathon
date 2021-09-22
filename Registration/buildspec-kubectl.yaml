@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    _PROJECT_NAME: "marathon-registration"
+    _PROJECT_NAME: "prod1-registration"
     _POD_NAME: "registration" # low case character
 
 phases:
