@@ -54,6 +54,11 @@ logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
+
+api:
+  url:
+    pays: http://localhost:8082/pays
+
 server:
   port: 8081
 ---
