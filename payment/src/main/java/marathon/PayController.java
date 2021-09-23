@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 	@PostMapping("/request")
 	public boolean requestPay(@RequestBody Pay pay) {
         System.out.println("################################### PayController: /pays/request");
-
 		
         // CB test 용 지연 코드.
         /*try {

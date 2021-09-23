@@ -12,6 +12,6 @@ public interface PayService {
     //@RequestMapping(method= RequestMethod.GET, path="/pays")
     @RequestMapping(method= RequestMethod.GET, path="/request")
     public boolean payRequest(@RequestBody Pay pay);
-
+    
 }
 
