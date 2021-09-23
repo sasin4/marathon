@@ -104,5 +104,6 @@ hystrix:
     # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
     default:
       execution.isolation.thread.timeoutInMilliseconds: 610
+
 server:
   port: 8080  #for cloud          
