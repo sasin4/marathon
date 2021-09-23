@@ -22,12 +22,6 @@ public class Registration {
 
     @PostPersist
     public void onPostPersist(){
-        PayRequested payRequested = new PayRequested();
-        BeanUtils.copyProperties(this, payRequested);
-        payRequested.publishAfterCommit();
-
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
 
         marathon.external.Pay pay = new marathon.external.Pay();
         // mappings goes here
@@ -70,11 +64,10 @@ public class Registration {
         System.out.println("bottomSize : "+ pay.getBottomSize());
         System.out.println("amount : "+ pay.getAmount());
 
-        /*
-        RegisterCancelled registerCancelled = new RegisterCancelled();
-        BeanUtils.copyProperties(this, registerCancelled);
-        registerCancelled.publishAfterCommit();
-        */
+        
+        PayRequested payRequested = new PayRequested();
+        BeanUtils.copyProperties(this, payRequested);
+        payRequested.publishAfterCommit();
 
     }
 

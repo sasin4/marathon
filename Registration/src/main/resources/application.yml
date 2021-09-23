@@ -57,7 +57,7 @@ logging:
 
 api:
   url:
-    pays: http://localhost:8082/pays
+    pay: http://localhost:8082/pays
 
 server:
   port: 8081
@@ -109,6 +109,9 @@ hystrix:
     # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
     default:
       execution.isolation.thread.timeoutInMilliseconds: 610
+api:
+  url:
+    pay: http://ab05340fcb5a549468186b7f51ec793c-1525260050.ap-northeast-2.elb.amazonaws.com:8080/pays
 
 server:
   port: 8080  #for cloud          
