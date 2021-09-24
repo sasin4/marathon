@@ -1,13 +1,13 @@
 ![convenience](https://user-images.githubusercontent.com/89987635/132986141-bed4959d-1d1d-4b74-bddd-7cb3e6a20d75.jpeg)
 
-# 편의점 예약 
+# 마라톤 등록 
 
-편의점 상품 예약 및 픽업, 취소 기능을 구현한 Microservice
+마라톤 참여 등록 및 등록 시 goods를 보내주는 기능을 구현한 Microservice
 
 
 # Table of contents
 
-- [편의점](#---)
+- [마라톤 신청](#---)
   - [서비스 시나리오](#서비스-시나리오)
   - [체크포인트](#체크포인트)
   - [분석/설계](#분석설계)
@@ -31,27 +31,25 @@
 편의점 예약 기능 구현하기 
 
 기능적 요구사항
-1. 점장은 상품을 주문한다
-2. Supplier는 제품을 배송한다
-3. 배송이 되면 상품 갯수가 늘어난다 
-4. 고객은 상품 목록을 조회한다
-5. 고객은 상품을 예약한다
-6. 고객이 예약한 상품을 결제한다
-7. 고객은 예약 내역을 취소한다
-8. 예약을 취소하면 결제가 취소된다
-9. 예약이 취소되면 상품 예약이 취소된다
-10. 고객이 방문하여 예약한 상품을 찾아간다
-11. 찾아간 상품은 Pickup으로 표시된다
+1. 고객이 마라톤에 Register 한다
+2. 마라톤 Register 시 참가비를 결제를 한다.
+3. 마라톤 주최측 RegisterMaster에 신청 내역이 전달된다
+4. 마라톤 참여 Goods가 발송된다
+5. 고객이 Register 를 취소할 수 있다
+6. Register를 취소하면 결제를 취소한다
+7. Register를 취소하면 Goods 발송도 취소한다.
 
 비기능적 요구사항
 1. 트랜잭션
-    1. 결제가 되지 않은 예약 주문은 예약이 되지 않아야 한다. - Sync
-1. 장애격리
-    1. 상점의 기능이 동작하지 않아도 예약은 받아야 한다. - Event Driven
-    1. 예약 주문이 많으면 주문을 잠시후에 하도록 유도해야 한다. - Circuit Break
-1. 성능
-    1. 고객이 예약 현황 및 상태 프론트엔드에서 조회할 수 있어야 한다.  CQRS
-    1. 예약한 상품의 상태가 바뀔 때마다 카톡 등으로 알림을 줄 수 있어야 한다  Event driven
+  - Register 시 결제 과정을 거치며 결제 실패 시 Register가 불가능하다 : Sync 호출
+  - ???고객이 요청한 업무 처리가 실패한 경우 요청 내역을 삭제한다 (Correlation)
+2. 장애격리
+  - 주최측 RegisterMaster 접수 기능이 수행되지 않더라도 Register 신청은 365일, 24시간 받을 수 있어야 한다 : Async (event-driven), Eventual Consistency
+  - Registration 시스템 접속이 과중 되면 사용자를 잠시 후에 다시 접속하도록 유도한다 : Circuit breaker, Fallback
+3. 성능
+  - 고객이 Register 및 Delivery 상태를 확인할 수 있어야 한다 : CQRS
+  - Payment, Delivery 상태가 바뀔 때 마다 SMS로 알림을 준다 : Event-driven
+
     
 
 
@@ -151,16 +149,16 @@
 
 <img width="1500" alt="2021-09-13 10 01 42" src="https://user-images.githubusercontent.com/89987635/133088250-5f0c17ed-37ca-412d-9057-48c4ee99a085.png">
 
-- Reservation의 예약과 취소, Pay의 결제 요청, 결제 취소, Store의 상품 주문, 상품 픽업, 예약, 예약 취소, Supplier의 상품 출고의 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 그들 끼리 묶어줌
+- Registraion의 예약과 취소, Payment의 결제 요청, 결제 취소, Registermaster의 등록 접수/취소, Goods 발송/취소 등 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 Aggregate을 구성
 
 ### 바운디드 컨텍스트로 묶기
 
 <img width="1475" alt="2021-09-13 10 02 53" src="https://user-images.githubusercontent.com/89987635/133088393-55762696-6012-4e8e-8211-cba34cde5064.png">
 
     - 도메인 서열 분리 
-      - Core Domain:  Reservation, Store : 없어서는 안될 핵심 서비스이며, 연견 Up-time SLA 수준을 99.999% 목표, 배포주기는 의 경우 1주일 1회 미만
-      - Supporting Domain: Supplier : 경쟁력을 내기위한 서비스이며, SLA 수준은 연간 60% 이상 uptime 목표, 배포주기는 1주일 1회 이상을 기준으로 함.
-      - General Domain: PayHistory : 결제서비스로 3rd Party 외부 서비스를 사용하는 것이 경쟁력이 높음
+      - Core Domain:  Regisgtration : 마라톤 등록 같이 접속이 몰리는 경우 Down이 있으면 안되는 핵심 서비스
+      - Supporting Domain: Registermaster : 등록정보와 결재 상태 정보를 최종 접수 하며, 참여 Goods를 보내는 서비스
+      - General Domain: Payment : 결제서비스로 Registration 과 연계될 수 있는 외부 결제 기능
 
 ### 폴리시 부착 (괄호는 수행주체, 전체 연계가 초기에 드러남)
 
@@ -204,9 +202,8 @@
 <img width="1430" alt="2021-09-13 11 33 01" src="https://user-images.githubusercontent.com/89987635/133102897-b2ef32d3-e1d9-498c-b868-42dd9d2951fc.png">
 
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
-        - 고객 예약시 결제처리:  ACID 트랜잭션 적용. 예약 완료 시 결제처리에 대해서는 Request-Response 방식 처리
-        - 결제 완료시 Store 연결 :  PayHistory 에서 Store 마이크로서비스로 예약 요청이 전달되는 과정에 있어서 Store 마이크로서비스가 별도의 배포주기를 가지기 때문에 Eventual Consistency 방식으로 트랜잭션 처리함
-        - 나머지 모든 inter-microservice 트랜잭션: 출고 처리, 픽업 완료 등 데이터 일관성의 시점이 크리티컬하지 않은 모든 경우가 대부분이라 판단, Eventual Consistency 를 기본으로 채택함
+    - 고객 등록시 결제처리 : 등록 완료 시 결제는 Request-Response 방식 처리
+    - 나머지 모든 inter-microservice 트랜잭션: 등록 시 결제로 연결되는 트랜잭션 외에는 모두 Eventual Consistency 를 기본으로 채택함
 
 
 
@@ -228,182 +225,162 @@
 cd gateway
 mvn spring-boot:run
 
-cd Store
+cd Registration
 mvn spring-boot:run 
 
-cd Reservation
+cd Registermaster
 mvn spring-boot:run  
 
-cd Pay
+cd payment
 mvn spring-boot:run
 
-cd Supplier
+cd dashboard
 mvn spring-boot:run
 
-cd View
-mvn spring-boot:run
 ```
 
 ## DDD 의 적용
 
-- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 Reservation 마이크로 서비스). 이때 가능한 현업에서 사용하는 언어(유비쿼터스 랭귀지)를 영어로 번역하여 사용하였다. 
+- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 Registration 마이크로 서비스). 
+  이때 가능한 현업에서 사용하는 언어(유비쿼터스 랭귀지)를 영어로 번역하여 사용하였다. 
 
 ```
 
-package convenience.store;
+package marathon;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-
+import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
+import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="Reservation_table")
-public class Reservation {
+@Table(name="Registration_table")
+public class Registration {
 
-  @Id
-  @GeneratedValue(strategy=GenerationType.AUTO)
-  private Long id;
-  private String status;
-  private String date;
-  private Long productId;
-  private String productName;
-  private Integer productPrice;
-  private Long customerId;
-  private String customerName;
-  private String customerPhone;
-  private Integer qty;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+    private String name;
+    private String phoneNo;
+    private String address;
+    private String status;
+    private String topSize;
+    private String bottomSize;
+    private Integer amount;
 
-  public Long getId() {
-    return id;
-  }
+    @PostPersist
+    public void onPostPersist(){
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+        marathon.external.Pay pay = new marathon.external.Pay();
+        // mappings goes here
+        
+        PayRequested payRequested = new PayRequested();
+        BeanUtils.copyProperties(this, payRequested);
+        payRequested.publishAfterCommit();
 
-  public String getStatus() {
-    return status;
-  }
+    }
 
-  public void setStatus(String status) {
-     this.status = status;
-  }
+    @PostUpdate
+    public void onPostUpdate() {
+        RegisterCancelled registrationCancelled = new RegisterCancelled();
+	BeanUtils.copyProperties(this, registrationCancelled);
+	registrationCancelled.publishAfterCommit();
+    }    
 
-  public String getDate() {
-     return date;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public void setDate(String date) {
-    this.date = date;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
 
-  public Long getProductId() {
-     return productId;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getPhoneNo() {
+        return phoneNo;
+    }
 
-  public void setProductId(Long productId) {
-     this.productId = productId;
-  }
+    public void setPhoneNo(String phoneNo) {
+        this.phoneNo = phoneNo;
+    }
+    public String getAddress() {
+        return address;
+    }
 
-  public String getProductName() {
-    return productName;
-  }
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    public String getStatus() {
+        return status;
+    }
 
-  public void setProductName(String productName) {
-    this.productName = productName;
-  }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public String getTopSize() {
+        return topSize;
+    }
 
-  public Integer getProductPrice() {
-    return productPrice;
-  }
+    public void setTopSize(String topSize) {
+        this.topSize = topSize;
+    }
+    public String getBottomSize() {
+        return bottomSize;
+    }
 
-  public void setProductPrice(Integer productPrice) {
-     this.productPrice = productPrice;
-  }
+    public void setBottomSize(String bottomSize) {
+        this.bottomSize = bottomSize;
+    }
+    public Integer getAmount() {
+        return amount;
+    }
 
-  public Long getCustomerId() {
-    return customerId;
-  }
-
-  public void setCustomerId(Long customerId) {
-    this.customerId = customerId;
-  }
-
-  public String getCustomerName() {
-    return customerName;
-  }
-
-  public void setCustomerName(String customerName) {
-    this.customerName = customerName;
-  }
-
-  public String getCustomerPhone() {
-    return customerPhone;
-  }
-
-  public void setCustomerPhone(String customerPhone) {
-    this.customerPhone = customerPhone;
-  }
-
-  public Integer getQty() {
-    return qty;
-  }
-
-  public void setQty(Integer qty) {
-      this.qty = qty;
-  }
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
 }
 
 ```
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 ```
 
-package convenience.store;
+package marathon;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(collectionResourceRel="products", path="products")
-public interface ProductRepository extends JpaRepository<Product, Long>{
-	
-  Product findByProductName(String productName);
-	
+@RepositoryRestResource(collectionResourceRel="registrations", path="registrations")
+public interface RegistrationRepository extends PagingAndSortingRepository<Registration, Long>{
+
+
 }
 
 ```
 - 적용 후 REST API 의 테스트 (PostMan 기준)
 ```
 
-# Store 서비스의 입고 주문
-POST http://localhost:8083/product/order
+# Registration 서비스의 등록 요청
+POST http://localhost:8080/registrations/register
 {
-    "productName": "Milk",
-    "productPrice": 1200,
-    "productQty": 2
+    "name" :"HJK1",
+    "phoneNo" :"010-8944-4256",
+    "address" :"인천시연수구",
+    "topSize" :"110",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
-# Store 입고 상태 확인
-GET http://localhost:8080/product/list
+# Registraion 서비스의 등록 취소 요청 : cancel/{등록 id}로 취소
+http://localhost:8080/registrations/cancel/2
 
+# Dashboard 서비스의 조회 요청
+http://localhost:8080/dashboards
 
-# Reservation 서비스의 예약 주문
-POST http://localhost:8081/reservation/order
-{
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
-}
 
 ```
 
@@ -412,30 +389,27 @@ POST http://localhost:8081/reservation/order
 전체 서비스의 경우 빠른 속도와 개발 생산성을 극대화하기 위해 Spring Boot에서 기본적으로 제공하는 In-Memory DB인 H2 DB를 사용하였다.
 
 ```
-# Product.java
+package marathon;
 
-package convenience.store;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PostUpdate;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
+import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
+import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="product_table")
-public class Product {
+@Table(name="Registration_table")
+public class Registration {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO) // H2 DB의 경우 ID가 sequence 기준으로 순차적으로 채번된다
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private String productName;
-    private Integer productPrice;
-    private Integer productQty;
+    private String name;
+    private String phoneNo;
+    private String address;
+    private String status;
+    private String topSize;
+    private String bottomSize;
+    private Integer amount;
     
 
 # application.yml
@@ -455,7 +429,7 @@ public class Product {
 
 ## 폴리글랏 프로그래밍
 
-View 서비스(dashboard)의 경우 다른 서비스와 다르게 HSQL DB를 사용하였다.
+Dashboard 서비스의 경우 다른 서비스와 다르게 HSQL DB를 사용하였다.
 
 ```
 
@@ -472,153 +446,178 @@ View 서비스(dashboard)의 경우 다른 서비스와 다르게 HSQL DB를 사
 
 ## 동기식 호출 과 Fallback 처리
 
-분석단계에서의 조건 중 하나로 예약(reservation)->결제(pay) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
+분석단계에서의 조건 중 하나로 등록(registrations)->결제(pays) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 FeignClient 를 이용하여 호출하도록 한다. 
 
-- 결제 서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
+- 결제 서비스를 호출하기 위하여 FeignClient를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
 ```
 
-# (Reservation) 
+# (Registration) 
 
-package convenience.store.external;
+package marathon.external;
 
-@FeignClient(name="pay", url="${api.url.pay}", fallback = PayHistoryServiceImpl.class)
-public interface PayHistoryService {
-	
-  @RequestMapping(method= RequestMethod.POST, path="/request")
-  public boolean request(@RequestBody PayHistory payHistory);
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+@FeignClient(name="pays", url="${api.url.pay}", fallback = PayServiceFallback.class)
+public interface PayService {
+    @RequestMapping(method= RequestMethod.POST, path="/request")
+    public boolean payRequest(@RequestBody Pay pay);
+    
 }
 
 ```
 
-- 예약 직후(@PostPersist) 결제를 요청하도록 처리
+-  직후(@PostPersist) 결제를 요청하도록 처리
 ```
 
-# Reservation.java (Entity)
+# Registration.java (Entity)
 
-  @PostPersist
-  public void onPostPersist() {
+    @PostPersist
+    public void onPostPersist(){
 
-    convenience.store.external.PayHistory payHistory = new convenience.store.external.PayHistory();
+        marathon.external.Pay pay = new marathon.external.Pay();
+        // mappings goes here
+        pay.setId(this.id);
+        pay.setName(this.name);
+        pay.setPhoneNo(this.phoneNo);
+        pay.setAddress(this.address);
+        pay.setAmount(this.amount);
+        pay.setRegisterStatus("REGISTERED");
+        pay.setTopSize(this.topSize);
+        pay.setBottomSize(this.bottomSize);
+        pay.setAmount(this.amount);
+        
+        boolean result = RegistrationApplication.applicationContext.getBean(marathon.external.PayService.class).payRequest(pay);
+        
+        if(result) {
+        	System.out.println("########## 결제가 완료되었습니다 ############");
+        } else {
+            System.out.println("########## 결제가 실패하였습니다 ############");
+        }  
+        
+        PayRequested payRequested = new PayRequested();
+        BeanUtils.copyProperties(this, payRequested);
+        payRequested.publishAfterCommit();
 
-    payHistory.setPayStatus(this.status);
-    payHistory.setReserveStatus("RESERVE");
-    payHistory.setReserveId(this.id);
-    payHistory.setCustomerId(this.customerId);
-    payHistory.setCustomerName(this.customerName);
-    payHistory.setCustomerPhone(this.customerPhone);
-    payHistory.setDate(this.date);
-    payHistory.setReserveDate(this.date);
-    payHistory.setProductId(this.productId);
-    payHistory.setProductPrice(this.productPrice);
-    payHistory.setReserveQty(this.qty);
+        //PVC
+        payRequested.saveJasonToPvc(payRequested.toJson());
 
-    boolean result = ReservationApplication.applicationContext.getBean(convenience.store.external.PayHistoryService.class).request(payHistory);
-
-  }
+    }
 
 ```
 
-- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 예약도 불가하다는 것을 확인:
-
 
 ```
-# 결제 (Pay) 서비스를 잠시 내려놓음 (ctrl+c)
+# 결제 (Payment) 서비스를 잠시 내려놓음 (ctrl+c)
 
-# 예약처리
-POST http://localhost:8081/reservation/order   #Fail
+# 등록처리
+POST http://localhost:8080/registrations/register   #Fail
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "name" :"HJK1",
+    "phoneNo" :"010-1234-4256",
+    "address" :"경기도성남시",
+    "topSize" :"110",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
-POST http://localhost:8081/reservation/order   #Fail
+POST http://localhost:8080/registrations/register   #Fail
 {
-    "productId": 2,
-    "productName": "Snack",
-    "productPrice": 1500,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 5
+    "name" :"SCKIM",
+    "phoneNo" :"010-2223-4256",
+    "address" :"서울특별시종로구",
+    "topSize" :"105",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
 
 #결제서비스 재기동
-cd Pay
+cd Payment
 mvn spring-boot:run
 
-# 예약처리
-POST http://localhost:8081/reservation/order   #Success
+# 등록처리
+POST http://localhost:8080/registrations/register   #Success
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "name" :"HJK1",
+    "phoneNo" :"010-1234-4256",
+    "address" :"경기도성남시",
+    "topSize" :"110",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
-POST http://localhost:8081/reservation/order   #Success
+POST http://localhost:8080/registrations/register   #Success
 {
-    "productId": 2,
-    "productName": "Snack",
-    "productPrice": 1500,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 5
+    "name" :"SCKIM",
+    "phoneNo" :"010-2223-4256",
+    "address" :"서울특별시종로구",
+    "topSize" :"105",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
 ```
-
-- 또한 과도한 예약 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
-
 
 
 
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
 
 
-결제가 이루어진 후에 Store 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 Store 서비스의 처리를 위하여 결제가 블로킹 되지 않아도록 처리한다.
+결제가 이루어진 후에 Registermaster 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 불필요한 커플링을 최소화한다.
  
 - 이를 위하여 결제 이력에 기록을 남긴 후에 곧바로 결제 요청이 되었다는 도메인 이벤트를 카프카로 송출한다. (Publish)
   이때 다른 저장 로직에 의해서 해당 이벤트가 발송되는 것을 방지하기 위해 Status 체크하는 로직을 추가했다.
  
 ```
 
-package convenience.store;
+package marathon;
+
+import javax.persistence.*;
+import org.springframework.beans.BeanUtils;
+import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="payhistory_table")
-public class PayHistory {
+@Table(name="Pay_table")
+public class Pay {
 
-    ...
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+    private Long registerId;
+    private String name;
+    private String phoneNo;
+    private String address;
+    private String registerStatus;
+    private String payStatus;
+    private String topSize;
+    private String bottomSize;
+    private Integer amount;
 
     @PostPersist
-    public void onPostPersist() {
-      if(this.reserveStatus.equals("RESERVE")) {
-        PayRequested payRequested = new PayRequested();
-    	BeanUtils.copyProperties(this, payRequested);    		
-    	payRequested.publishAfterCommit();
-
-        payRequested.saveJasonToPvc(payRequested.toJson());
-
-      }
+    public void onPostPersist(){
+        System.out.println("############################## Pay PostPersist");
+        PayCompleted payCompleted = new PayCompleted();
+        BeanUtils.copyProperties(this, payCompleted);
+        payCompleted.publishAfterCommit();
+        
+        //PVC
+        payCompleted.saveJasonToPvc(payCompleted.toJson());
     }
+    @PostUpdate
+    public void onPostUpdate(){
+        System.out.println("############################## Pay onPostUpdate1");
+        if(this.payStatus.equals("CANCEL")){
 
 ```
-- 상점 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
+- Registermaster 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 
 ```
-package convenience.store;
+package marathon;
 
 ...
 
@@ -627,89 +626,101 @@ public class PolicyHandler {
 
   ...
   
-  @StreamListener(KafkaProcessor.INPUT)
-  public void wheneverPayRequested_Reserve(@Payload PayRequested payRequested){
+  @Service
+  public class PolicyHandler{
+    @Autowired RegisterMasterRepository registerMasterRepository;
 
-    if(!payRequested.validate()) return;
-    System.out.println("\n\n##### listener Reserve : " + payRequested.toJson() + "\n\n");
-        
-    StoreReservation storeReservation = new StoreReservation();
-    BeanUtils.copyProperties(payRequested, storeReservation);
-    storeReservationRepository.save(storeReservation);
-        
-    // 예약이 되면 상품의 보유 갯수를 줄여준다  
-    Product product = productRepository.findById(payRequested.getProductId()).orElseThrow(null);
-    product.setProductQty(product.getProductQty() - payRequested.getReserveQty());
-    productRepository.save(product);
-        
-  }
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCompleted_SaveRegister(@Payload PayCompleted payCompleted){
 
-```
-실제 구현을 하자면, 결제가 완료된 이후에 카톡 알림을 통해 예약이 완료되었다는 외부 이벤트를 보내고, 점주는 예약 상태를 Dashboard를 통해 확인할 수 있다.
+        if(!payCompleted.validate()) return;
+        System.out.println("\n\n##### RegisterMaster PolicyHandler");
+        System.out.println("\n\n##### listener SaveRegister : " + payCompleted.toJson() + "\n\n");
+
+        RegisterMaster registerMaster = new RegisterMaster();
+        registerMaster.setRegisterId(payCompleted.getRegisterId());
+        registerMaster.setName(payCompleted.getName());
+        registerMaster.setAddress(payCompleted.getAddress());     
+        registerMaster.setPhoneNo(payCompleted.getPhoneNo());
+        registerMaster.setTopSize(payCompleted.getTopSize());
+        registerMaster.setBottomSize(payCompleted.getBottomSize());
+        
+        registerMaster.setDeliveryStatus("DELIVERED");
+        registerMasterRepository.save(registerMaster);
+
+
+    }
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCancelled_CancelRegister(@Payload PayCancelled payCancelled){
   
 ```
-
-# 결제 성공시 카톡 메세지 전송
-
-  @PostPersist
-  public void onPostPersist() {
-
-  convenience.store.external.PayHistory payHistory = new convenience.store.external.PayHistory();
-
-  boolean result = ReservationApplication.applicationContext.getBean(convenience.store.external.PayHistoryService.class).request(payHistory);
-
-  if(result) {
-    System.out.println("########## 결제가 완료되었습니다 ############");
-    // 결제 성공 카톡 메세지 발송
-  } else {
-    System.out.println("########## 결제가 실패하였습니다 ############");
-    // 결제 실패 카톡 메세지 발송
-  }    	
-
-}
-
-# 예약 현황을 Dashboard에서 확인
-
-GET http://localhost:8084/dashboard/list
+- Registration 서비스에서 PayCompleted, PayCancelled, RegisterComplete, RegisterRemoved 리스너 구현
 
 ```
+@Service
+public class PolicyHandler{
+    @Autowired RegistrationRepository registrationRepository;
 
-Store 서비스는 예약/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, Store 서비스를 유지보수로 인해 잠시 내려간 상태라도 예약을 받는데 문제가 없다:
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCompleted_UpdaeSms(@Payload PayCompleted payCompleted){
+
+        if(!payCompleted.validate()) return;
+        System.out.println("\n\n################### payCompleted.getPayStatus() " + payCompleted.getPayStatus());
+        if(payCompleted.getPayStatus().equals("COMPLETE")){
+            System.out.println("\n\n##### listener UpdaeSms PayCompleted : " + payCompleted.toJson() + "\n\n");
+            //결제 완료 안내
+            System.out.println("\n\결제완료 신청번호 : "+payCompleted.getId()+ ", 신청자 : " + payCompleted.getName() + ", 금액 : " + payCompleted.getAmount() +"\n\n");
+            System.out.println("\n\n###################################################");
+        }
+    }
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCancelled_UpdaeSms(@Payload PayCancelled payCancelled){
+
+        if(!payCancelled.validate()) return;
+        System.out.println("\n\n################### payCancelled.getPayStatus() " + payCancelled.getPayStatus());
+        if(payCancelled.getPayStatus().equals("CANCEL")){
+            System.out.println("\n\n##### listener UpdaeSms PayCancelled : " + payCancelled.toJson() + "\n\n");
+            //결제 취소 안내
+            System.out.println("\n\n결제가 취소었습니다. 신청번호 : "+payCancelled.getId()+ ", 신청자 : " + payCancelled.getName() +"\n\n");
+            System.out.println("\n\n###################################################");
+        }
+
 ```
-# Store 서비스 를 잠시 내려놓음 (ctrl+c)
+- Registermaster 서비스는 예약/결제와 분리되어, Kafka 이벤트 수신에 따라 처리되기 때문에, Registermaster 서비스가 잠시 내려간 상태라도 등록을 받는데 문제가 없다.
 
-#예약처리
-POST http://localhost:8081/reservation/order   #Success
+```
+# Registermaster 서비스 를 잠시 내려놓음 (ctrl+c)
+
+# 등록처리
+POST http://localhost:8080/registrations/register   #Success
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "name" :"HJK1",
+    "phoneNo" :"010-1234-4256",
+    "address" :"경기도성남시",
+    "topSize" :"110",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
-POST http://localhost:8081/reservation/order   #Success
+POST http://localhost:8080/registrations/register   #Success
 {
-    "productId": 2,
-    "productName": "Snack",
-    "productPrice": 1500,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 5
+    "name" :"SCKIM",
+    "phoneNo" :"010-2223-4256",
+    "address" :"서울특별시종로구",
+    "topSize" :"105",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
-#예약상태 확인
-GET http://localhost:8081/reservation/list     # 예약상태 조회 가능
+#등록상태 확인
+GET http://localhost:8080/registrations     # 등록상태 조회 가능
 
-#상점 서비스 기동
-cd Store
+#Registermaster 서비스 기동
+cd Registermaster
 mvn spring-boot:run
 
-#주문상태 확인
-GET http://localhost:8083/product/list     # 상품의 갯수가 예약한 갯수만큼 줄어듬
+#등록상태 확인
+GET http://localhost:8080/Registermaster/     # 등록상태와 결재 상태가 함께 조회됨
 
 ```
 
