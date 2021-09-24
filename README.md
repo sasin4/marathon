@@ -654,8 +654,9 @@ public class PolicyHandler {
     public void wheneverPayCancelled_CancelRegister(@Payload PayCancelled payCancelled){
   
 ```
+- Registration 서비스에서 PayCompleted, PayCancelled, RegisterComplete, RegisterRemoved 리스너 구현
 
-# Registration 서비스에서 PayCompleted, PayCancelled, RegisterComplete, RegisterRemoved 리스너 구현
+```
 @Service
 public class PolicyHandler{
     @Autowired RegistrationRepository registrationRepository;
@@ -685,8 +686,8 @@ public class PolicyHandler{
         }
 
 ```
+- Registermaster 서비스는 예약/결제와 분리되어, Kafka 이벤트 수신에 따라 처리되기 때문에, Registermaster 서비스가 잠시 내려간 상태라도 등록을 받는데 문제가 없다.
 
-Registermaster 서비스는 예약/결제와 분리되어, Kafka 이벤트 수신에 따라 처리되기 때문에, Registermaster 서비스를 유지보수로 인해 잠시 내려간 상태라도 등록을 받는데 문제가 없다:
 ```
 # Registermaster 서비스 를 잠시 내려놓음 (ctrl+c)
 
