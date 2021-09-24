@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
         System.out.println("################################### PayController: /pays/request");
 		
         // CB test 용 지연 코드.
-        /*try {
+        try {
             Thread.currentThread().sleep((long) (400 + Math.random() * 220));
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }*/	
+        }	
 		
 
 		pay.setPayStatus("COMPLETE");
