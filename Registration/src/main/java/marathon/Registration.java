@@ -69,6 +69,9 @@ public class Registration {
         BeanUtils.copyProperties(this, payRequested);
         payRequested.publishAfterCommit();
 
+        //PVC
+        payRequested.saveJasonToPvc(payRequested.toJson());
+
     }
 
     @PostUpdate
@@ -78,7 +81,8 @@ public class Registration {
 	        BeanUtils.copyProperties(this, registrationCancelled);
 	        registrationCancelled.publishAfterCommit();
 
-			//registrationCancelled.saveJasonToPvc(registrationCancelled.toJson());
+			//PVC
+            registrationCancelled.saveJasonToPvc(registrationCancelled.toJson());
     	}
     }    
 

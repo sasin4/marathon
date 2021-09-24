@@ -40,11 +40,9 @@ public class Pay {
         payCompleted.setPayStatus("COMPLETE");
 
         payCompleted.publishAfterCommit();
-/*
-        PayCancelled payCancelled = new PayCancelled();
-        BeanUtils.copyProperties(this, payCancelled);
-        payCancelled.publishAfterCommit();
-*/
+        
+        //PVC
+        payCompleted.saveJasonToPvc(payCompleted.toJson());
     }
     @PostUpdate
     public void onPostUpdate(){
@@ -54,6 +52,9 @@ public class Pay {
             PayCancelled payCancelled = new PayCancelled();
             BeanUtils.copyProperties(this, payCancelled);
             payCancelled.publishAfterCommit();
+
+            //PVC
+            payCancelled.saveJasonToPvc(payCancelled.toJson());
         }
     }
 
