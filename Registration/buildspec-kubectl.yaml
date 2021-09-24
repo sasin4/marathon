@@ -122,7 +122,7 @@ phases:
 #              kind: Deployment
 #              name: $_POD_NAME
 #            minReplicas: 1
-#            maxReplicas: 10
+#            maxReplicas: 5
 #            metrics:
 #            - type: Resource
 #              resource:
