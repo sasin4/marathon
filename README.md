@@ -575,31 +575,50 @@ POST http://localhost:8080/registrations/register   #Success
  
 ```
 
-package convenience.store;
+package marathon;
+
+import javax.persistence.*;
+import org.springframework.beans.BeanUtils;
+import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="payhistory_table")
-public class PayHistory {
+@Table(name="Pay_table")
+public class Pay {
 
-    ...
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+    private Long registerId;
+    private String name;
+    private String phoneNo;
+    private String address;
+    private String registerStatus;
+    private String payStatus;
+    private String topSize;
+    private String bottomSize;
+    private Integer amount;
 
     @PostPersist
-    public void onPostPersist() {
-      if(this.reserveStatus.equals("RESERVE")) {
-        PayRequested payRequested = new PayRequested();
-    	BeanUtils.copyProperties(this, payRequested);    		
-    	payRequested.publishAfterCommit();
-
-        payRequested.saveJasonToPvc(payRequested.toJson());
-
-      }
+    public void onPostPersist(){
+        System.out.println("############################## Pay PostPersist");
+        PayCompleted payCompleted = new PayCompleted();
+        BeanUtils.copyProperties(this, payCompleted);
+        payCompleted.publishAfterCommit();
+        
+        //PVC
+        payCompleted.saveJasonToPvc(payCompleted.toJson());
     }
+    @PostUpdate
+    public void onPostUpdate(){
+        System.out.println("############################## Pay onPostUpdate1");
+        if(this.payStatus.equals("CANCEL")){
 
 ```
-- 상점 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
+- Registermaster 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 
 ```
-package convenience.store;
+package marathon;
 
 ...
 
@@ -608,89 +627,100 @@ public class PolicyHandler {
 
   ...
   
-  @StreamListener(KafkaProcessor.INPUT)
-  public void wheneverPayRequested_Reserve(@Payload PayRequested payRequested){
+  @Service
+  public class PolicyHandler{
+    @Autowired RegisterMasterRepository registerMasterRepository;
 
-    if(!payRequested.validate()) return;
-    System.out.println("\n\n##### listener Reserve : " + payRequested.toJson() + "\n\n");
-        
-    StoreReservation storeReservation = new StoreReservation();
-    BeanUtils.copyProperties(payRequested, storeReservation);
-    storeReservationRepository.save(storeReservation);
-        
-    // 예약이 되면 상품의 보유 갯수를 줄여준다  
-    Product product = productRepository.findById(payRequested.getProductId()).orElseThrow(null);
-    product.setProductQty(product.getProductQty() - payRequested.getReserveQty());
-    productRepository.save(product);
-        
-  }
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCompleted_SaveRegister(@Payload PayCompleted payCompleted){
 
-```
-실제 구현을 하자면, 결제가 완료된 이후에 카톡 알림을 통해 예약이 완료되었다는 외부 이벤트를 보내고, 점주는 예약 상태를 Dashboard를 통해 확인할 수 있다.
+        if(!payCompleted.validate()) return;
+        System.out.println("\n\n##### RegisterMaster PolicyHandler");
+        System.out.println("\n\n##### listener SaveRegister : " + payCompleted.toJson() + "\n\n");
+
+        RegisterMaster registerMaster = new RegisterMaster();
+        registerMaster.setRegisterId(payCompleted.getRegisterId());
+        registerMaster.setName(payCompleted.getName());
+        registerMaster.setAddress(payCompleted.getAddress());     
+        registerMaster.setPhoneNo(payCompleted.getPhoneNo());
+        registerMaster.setTopSize(payCompleted.getTopSize());
+        registerMaster.setBottomSize(payCompleted.getBottomSize());
+        
+        registerMaster.setDeliveryStatus("DELIVERED");
+        registerMasterRepository.save(registerMaster);
+
+
+    }
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCancelled_CancelRegister(@Payload PayCancelled payCancelled){
   
 ```
 
-# 결제 성공시 카톡 메세지 전송
+# Registration 서비스에서 PayCompleted, PayCancelled, RegisterComplete, RegisterRemoved 리스너 구현
+@Service
+public class PolicyHandler{
+    @Autowired RegistrationRepository registrationRepository;
 
-  @PostPersist
-  public void onPostPersist() {
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCompleted_UpdaeSms(@Payload PayCompleted payCompleted){
 
-  convenience.store.external.PayHistory payHistory = new convenience.store.external.PayHistory();
+        if(!payCompleted.validate()) return;
+        System.out.println("\n\n################### payCompleted.getPayStatus() " + payCompleted.getPayStatus());
+        if(payCompleted.getPayStatus().equals("COMPLETE")){
+            System.out.println("\n\n##### listener UpdaeSms PayCompleted : " + payCompleted.toJson() + "\n\n");
+            //결제 완료 안내
+            System.out.println("\n\결제완료 신청번호 : "+payCompleted.getId()+ ", 신청자 : " + payCompleted.getName() + ", 금액 : " + payCompleted.getAmount() +"\n\n");
+            System.out.println("\n\n###################################################");
+        }
+    }
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPayCancelled_UpdaeSms(@Payload PayCancelled payCancelled){
 
-  boolean result = ReservationApplication.applicationContext.getBean(convenience.store.external.PayHistoryService.class).request(payHistory);
-
-  if(result) {
-    System.out.println("########## 결제가 완료되었습니다 ############");
-    // 결제 성공 카톡 메세지 발송
-  } else {
-    System.out.println("########## 결제가 실패하였습니다 ############");
-    // 결제 실패 카톡 메세지 발송
-  }    	
-
-}
-
-# 예약 현황을 Dashboard에서 확인
-
-GET http://localhost:8084/dashboard/list
+        if(!payCancelled.validate()) return;
+        System.out.println("\n\n################### payCancelled.getPayStatus() " + payCancelled.getPayStatus());
+        if(payCancelled.getPayStatus().equals("CANCEL")){
+            System.out.println("\n\n##### listener UpdaeSms PayCancelled : " + payCancelled.toJson() + "\n\n");
+            //결제 취소 안내
+            System.out.println("\n\n결제가 취소었습니다. 신청번호 : "+payCancelled.getId()+ ", 신청자 : " + payCancelled.getName() +"\n\n");
+            System.out.println("\n\n###################################################");
+        }
 
 ```
 
-Store 서비스는 예약/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, Store 서비스를 유지보수로 인해 잠시 내려간 상태라도 예약을 받는데 문제가 없다:
+Registermaster 서비스는 예약/결제와 분리되어, Kafka 이벤트 수신에 따라 처리되기 때문에, Registermaster 서비스를 유지보수로 인해 잠시 내려간 상태라도 등록을 받는데 문제가 없다:
 ```
-# Store 서비스 를 잠시 내려놓음 (ctrl+c)
+# Registermaster 서비스 를 잠시 내려놓음 (ctrl+c)
 
-#예약처리
-POST http://localhost:8081/reservation/order   #Success
+# 등록처리
+POST http://localhost:8080/registrations/register   #Success
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "name" :"HJK1",
+    "phoneNo" :"010-1234-4256",
+    "address" :"경기도성남시",
+    "topSize" :"110",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
-POST http://localhost:8081/reservation/order   #Success
+POST http://localhost:8080/registrations/register   #Success
 {
-    "productId": 2,
-    "productName": "Snack",
-    "productPrice": 1500,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 5
+    "name" :"SCKIM",
+    "phoneNo" :"010-2223-4256",
+    "address" :"서울특별시종로구",
+    "topSize" :"105",
+    "bottomSize" :"100",
+    "amount" : 20000
 }
 
-#예약상태 확인
-GET http://localhost:8081/reservation/list     # 예약상태 조회 가능
+#등록상태 확인
+GET http://localhost:8080/registrations     # 등록상태 조회 가능
 
-#상점 서비스 기동
-cd Store
+#Registermaster 서비스 기동
+cd Registermaster
 mvn spring-boot:run
 
-#주문상태 확인
-GET http://localhost:8083/product/list     # 상품의 갯수가 예약한 갯수만큼 줄어듬
+#등록상태 확인
+GET http://localhost:8080/Registermaster/     # 등록상태와 결재 상태가 함께 조회됨
 
 ```
 
