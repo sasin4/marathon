@@ -448,7 +448,7 @@ Dashboard 서비스의 경우 다른 서비스와 다르게 HSQL DB를 사용하
 
 분석단계에서의 조건 중 하나로 등록(registrations)->결제(pays) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 FeignClient 를 이용하여 호출하도록 한다. 
 
-- 결제 서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
+- 결제 서비스를 호출하기 위하여 FeignClient를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
 ```
 
@@ -463,8 +463,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @FeignClient(name="pays", url="${api.url.pay}", fallback = PayServiceFallback.class)
 public interface PayService {
-    //@RequestMapping(method= RequestMethod.GET, path="/pays")
-    //@RequestMapping(method= RequestMethod.GET, path="/request")
     @RequestMapping(method= RequestMethod.POST, path="/request")
     public boolean payRequest(@RequestBody Pay pay);
     
