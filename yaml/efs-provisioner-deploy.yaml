@@ -22,7 +22,7 @@ spec:
             - name: FILE_SYSTEM_ID
               value: fs-ce181223
             - name: AWS_REGION
-              value: ca-central-1
+              value: ap-northeast-2
             - name: PROVISIONER_NAME
               value: my-aws.com/aws-efs
           volumeMounts:
@@ -31,5 +31,5 @@ spec:
       volumes:
         - name: pv-volume
           nfs:
-            server: fs-ce181223.efs.ca-central-1.amazonaws.com
+            server: fs-ce181223.efs.ap-northeast-2.amazonaws.com
             path: /

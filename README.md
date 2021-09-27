@@ -1,4 +1,4 @@
-![convenience](https://user-images.githubusercontent.com/89987635/132986141-bed4959d-1d1d-4b74-bddd-7cb3e6a20d75.jpeg)
+![캡처](https://user-images.githubusercontent.com/26429915/134905867-c9120d18-9cca-443b-9502-5b83034e1986.JPG)
 
 # 마라톤 등록 
 
@@ -654,38 +654,6 @@ public class PolicyHandler {
     public void wheneverPayCancelled_CancelRegister(@Payload PayCancelled payCancelled){
   
 ```
-- Registration 서비스에서 PayCompleted, PayCancelled, RegisterComplete, RegisterRemoved 리스너 구현
-
-```
-@Service
-public class PolicyHandler{
-    @Autowired RegistrationRepository registrationRepository;
-
-    @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverPayCompleted_UpdaeSms(@Payload PayCompleted payCompleted){
-
-        if(!payCompleted.validate()) return;
-        System.out.println("\n\n################### payCompleted.getPayStatus() " + payCompleted.getPayStatus());
-        if(payCompleted.getPayStatus().equals("COMPLETE")){
-            System.out.println("\n\n##### listener UpdaeSms PayCompleted : " + payCompleted.toJson() + "\n\n");
-            //결제 완료 안내
-            System.out.println("\n\결제완료 신청번호 : "+payCompleted.getId()+ ", 신청자 : " + payCompleted.getName() + ", 금액 : " + payCompleted.getAmount() +"\n\n");
-            System.out.println("\n\n###################################################");
-        }
-    }
-    @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverPayCancelled_UpdaeSms(@Payload PayCancelled payCancelled){
-
-        if(!payCancelled.validate()) return;
-        System.out.println("\n\n################### payCancelled.getPayStatus() " + payCancelled.getPayStatus());
-        if(payCancelled.getPayStatus().equals("CANCEL")){
-            System.out.println("\n\n##### listener UpdaeSms PayCancelled : " + payCancelled.toJson() + "\n\n");
-            //결제 취소 안내
-            System.out.println("\n\n결제가 취소었습니다. 신청번호 : "+payCancelled.getId()+ ", 신청자 : " + payCancelled.getName() +"\n\n");
-            System.out.println("\n\n###################################################");
-        }
-
-```
 - Registermaster 서비스는 예약/결제와 분리되어, Kafka 이벤트 수신에 따라 처리되기 때문에, Registermaster 서비스가 잠시 내려간 상태라도 등록을 받는데 문제가 없다.
 
 ```
@@ -721,6 +689,116 @@ mvn spring-boot:run
 
 #등록상태 확인
 GET http://localhost:8080/Registermaster/     # 등록상태와 결재 상태가 함께 조회됨
+
+```
+
+## ??????????????????????Correlation (보상패턴) 구현
+
+결제 승인시 상품의 갯수를 차감하고, 결제 취소시 상품의 갯수를 원복해준다.
+
+```
+@StreamListener(KafkaProcessor.INPUT)
+public void wheneverPayRequested_Reserve(@Payload PayRequested payRequested){
+
+  ...
+        
+    // 예약이 되면 상품의 보유 갯수를 줄여준다  
+    Product product = productRepository.findById(payRequested.getProductId()).orElseThrow(null);
+    product.setProductQty(product.getProductQty() - payRequested.getReserveQty());
+    productRepository.save(product);
+        
+}
+    
+    
+@StreamListener(KafkaProcessor.INPUT)
+public void wheneverPayCancelled_ReservationCancel(@Payload PayCancelled payCancelled){
+
+    ...
+       
+    // 예약이 취소되는 상품의 보유 갯수를 늘려준다 
+    Product product = productRepository.findById(payCancelled.getProductId()).orElseThrow(null);
+    product.setProductQty(product.getProductQty() + payCancelled.getReserveQty());
+    productRepository.save(product);
+
+}
+
+```
+
+## CQRS 패턴 구현
+
+등록과 결제 서비스의 완료 / 취소에 대한 현황을 Dashboard로 구현하여 조회할 수 있게 제공
+
+
+예약, 결제 취소, 픽업에 대한 Event Listener 구현
+
+```
+DashboardViewHandler.java
+
+@StreamListener(KafkaProcessor.INPUT)
+    public void whenPayCompleted_then_CREATE_1 (@Payload PayCompleted payCompleted) {
+        try {
+            System.out.println("################################## DashboardViewHandler whenPayCompleted_then_CREATE_1");
+
+            if (!payCompleted.validate()) return;
+
+            // view 객체 생성
+            Dashboard dashboard = new Dashboard();
+            // view 객체에 이벤트의 Value 를 set 함
+            dashboard.setRegisterId(payCompleted.getRegisterId());
+            dashboard.setName(payCompleted.getName());
+            dashboard.setPhoneNo(payCompleted.getPhoneNo());
+            dashboard.setAddress(payCompleted.getAddress());
+            dashboard.setStatus("REGISTERED");
+            dashboard.setPayStatus(payCompleted.getPayStatus());
+            dashboard.setAmount(payCompleted.getAmount());
+            dashboard.setTopSize(payCompleted.getTopSize());
+            dashboard.setBottomSize(payCompleted.getBottomSize());
+            // view 레파지 토리에 save
+            dashboardRepository.save(dashboard);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenRegisterComplete_then_UPDATE_1(@Payload RegisterComplete registerComplete) {
+        try {
+            System.out.println("################################## DashboardViewHandler whenRegisterComplete_then_UPDATE_1");
+            if (!registerComplete.validate()) return;
+                // view 객체 조회
+            Dashboard dashboard = dashboardRepository.findByregisterId(registerComplete.getRegisterId());
+            // view 객체에 이벤트의 eventDirectValue 를 set 함
+            
+            System.out.println("################################## deliveryStatus : "+registerComplete.getDeliveryStatus());
+            dashboard.setDeliveryStatus(registerComplete.getDeliveryStatus());
+            // view 레파지 토리에 save
+            dashboardRepository.save(dashboard);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenPayCancelled_then_UPDATE_2(@Payload PayCancelled payCancelled) {
+        try {
+            System.out.println("################################## DashboardViewHandler whenPayCancelled_then_UPDATE_2");
+            if (!payCancelled.validate()) return;
+                // view 객체 조회
+            
+            Dashboard dashboard = dashboardRepository.findByregisterId(payCancelled.getRegisterId());
+
+            dashboard.setDeliveryStatus(payCancelled.getPayStatus());
+            dashboard.setPayStatus(payCancelled.getPayStatus());
+            dashboard.setStatus(payCancelled.getPayStatus());
+            // view 레파지 토리에 save
+            dashboardRepository.save(dashboard);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 ```
 
