@@ -20,7 +20,7 @@ spec:
           image: quay.io/external_storage/efs-provisioner:latest
           env:
             - name: FILE_SYSTEM_ID
-              value: fs-ce181223
+              value: fs-dffb6fbf
             - name: AWS_REGION
               value: ap-northeast-2
             - name: PROVISIONER_NAME
@@ -31,5 +31,5 @@ spec:
       volumes:
         - name: pv-volume
           nfs:
-            server: fs-ce181223.efs.ap-northeast-2.amazonaws.com
+            server: fs-dffb6fbf.efs.ap-northeast-2.amazonaws.com
             path: /
