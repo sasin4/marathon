@@ -111,7 +111,7 @@ hystrix:
       execution.isolation.thread.timeoutInMilliseconds: 610
 api:
   url:
-    pay: http://ab05340fcb5a549468186b7f51ec793c-1525260050.ap-northeast-2.elb.amazonaws.com:8080/pays
+    pay: http://ae25be1fe10774e0c82aad7685b5d615-23718234.ap-northeast-2.elb.amazonaws.com:8080/pays
 
 server:
   port: 8080  #for cloud          
