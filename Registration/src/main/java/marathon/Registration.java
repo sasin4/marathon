@@ -65,6 +65,8 @@ public class Registration {
         System.out.println("amount : "+ pay.getAmount());
 
         
+
+        
         PayRequested payRequested = new PayRequested();
         BeanUtils.copyProperties(this, payRequested);
         payRequested.publishAfterCommit();
