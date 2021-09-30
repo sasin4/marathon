@@ -35,7 +35,6 @@ public class Registration {
         pay.setBottomSize(this.bottomSize);
         pay.setAmount(this.amount);
         
-        
         System.out.println("########################## Registration.java -> PostPersist -> payRequest");
         System.out.println("id : "+ this.id);
         System.out.println("name : "+ this.name);
@@ -63,10 +62,7 @@ public class Registration {
         System.out.println("topSize : "+ pay.getTopSize());
         System.out.println("bottomSize : "+ pay.getBottomSize());
         System.out.println("amount : "+ pay.getAmount());
-
-        
-
-        
+    
         PayRequested payRequested = new PayRequested();
         BeanUtils.copyProperties(this, payRequested);
         payRequested.publishAfterCommit();
