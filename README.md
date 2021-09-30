@@ -2,7 +2,7 @@
 
 # 마라톤 등록 
 
-마라톤 참여 등록 및 등록 시 참여 기념 goods를 보내주는 기능을 구현한 Microservice
+마라톤 참여 등록 및 등록 완료 시 기념 goods를 보내주는 기능을 구현한 Microservice
 
 
 # Table of contents
@@ -24,13 +24,14 @@
     - [Self-Healing](#self-healing)
     - [무정지 재배포](#무정지-재배포)
     - [Persistant Volume Claim](#persistant-volume-claim)
-  - [신규 개발 조직의 추가](#신규-개발-조직의-추가)
+
 
 # 서비스 시나리오
 
 마라톤 참여 등록하기 서비스
 
 기능적 요구사항
+```
 1. 고객이 마라톤에 Register 한다
 2. 마라톤 Register 시 참가비를 결제를 한다.
 3. 마라톤 주최측 RegisterMaster에 신청 내역이 전달된다
@@ -38,19 +39,22 @@
 5. 고객이 Register 를 취소할 수 있다
 6. Register를 취소하면 결제를 취소한다
 7. Register를 취소하면 Goods 발송도 취소한다.
+```
 
 비기능적 요구사항
+```
 1. 트랜잭션
-  - Register 시 결제 과정을 거치며 결제 실패 시 Register가 불가능하다 : Sync 호출
+  - Register 시 결제를 호출하며 결제 실패 시 Register가 불가능하다 : Sync 호출
 2. 장애격리
-  - 주최측 RegisterMaster 접수 기능이 수행되지 않더라도 Register 신청은 365일, 24시간 받을 수 있어야 한다 : Async (event-driven), Eventual Consistency
+  - 주최측 RegisterMaster 접수 기능이 수행되지 않더라도 Register 신청은 365일, 24시간 받을 수 있어야 한다 : Async (Event-driven), Eventual Consistency
   - Registration 시스템 접속이 과중 되면 사용자를 잠시 후에 다시 접속하도록 유도한다 : Circuit breaker, Fallback
 3. 성능
-  - 고객이 Register 및 Delivery 상태를 확인할 수 있어야 한다 : CQRS
-  - Payment, Delivery 상태가 바뀔 때 마다 SMS로 알림을 준다 : Event-driven
+  - 고객이 Register 및 Payment 상태를 확인할 수 있어야 한다 : CQRS
+  - Register, Payment 상태가 바뀔 때 마다 SMS로 알림을 준다 : Async (Event-driven)
+```
 
     
-
+<br/><br/><br/>
 
 # 체크포인트
 
@@ -108,6 +112,8 @@
     - Readiness Probe 의 설정과 Rolling update을 통하여 신규 버전이 완전히 서비스를 받을 수 있는 상태일때 신규버전의 서비스로 전환됨을 siege 등으로 증명 
 
 
+<br/><br/><br/>
+
 
 # 분석/설계
 
@@ -125,6 +131,7 @@
 ## Event Storming 결과
 
 * MSAEz 로 모델링한 이벤트스토밍 결과: https://labs.msaez.io/#/storming/zm7538qsNkhoDMQ3F0AUMpn1wHS2/8e220fa460d7f3692354e798ad599a22
+<img width="1371" alt="2021-09-30 11 42 52" src="https://user-images.githubusercontent.com/26429915/135400789-7611dd6c-b735-444f-9bd5-debb49d960d4.JPG">
 
 
 ### 이벤트 도출
@@ -132,8 +139,10 @@
 <img width="1371" alt="2021-09-30 11 42 52" src="https://user-images.githubusercontent.com/26429915/135387126-5877858b-47a6-407c-8717-05d21714ff04.JPG">
 
 ### 부적격 이벤트 탈락
+```
 - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
 - 결제시 > 결제 승인 및 승인 거부 : 외부 시스템의 이벤트이므로 제외
+```
 
 
 ### 액터, 커맨드 부착
@@ -144,8 +153,9 @@
 ### Aggreggate 및 Bounded Text로 묶기
 
 <img width="1500" alt="2021-09-30 10 01 42" src="https://user-images.githubusercontent.com/26429915/135387105-5b298d62-1f7e-4a96-b60b-764f11420762.JPG">
-
+```
 - Registration의 예약과 취소, Payment의 결제 요청, 결제 취소, Registermaster의 등록 접수/취소, Goods 발송/취소 등 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 Aggregate을 구성
+```
 
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
@@ -156,45 +166,46 @@
 ### 완성된 1차 모형
 
 <img width="1469" alt="2021-09-30 11 00 17" src="https://user-images.githubusercontent.com/26429915/135387113-46ecafb2-658a-4752-b8f0-d8cec9ea1486.JPG">
-
+```
     - View Model 추가
-
+```
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
 <img width="1448" alt="2021-09-30 11 11 59" src="https://user-images.githubusercontent.com/26429915/135387115-436ac9c6-46c0-4bd7-b8e8-ff5d003cfb9b.JPG">
-
+```
     - 사용자는 등록을 신청한다(ok)
     - 결제를 완료된다 (ok)
     - 주최측이 등록 정보를 확인하고 Goods를 보낸다(ok) 
-
+```
 
 <img width="1430" alt="2021-09-30 11 16 05" src="https://user-images.githubusercontent.com/26429915/135387116-e47b8186-d102-40e1-9bb0-94d4e1f906cc.JPG">
-
+```
     - 사용자는 등록을 취소한다 (ok)
     - 등록을 취소하면 결제가 취소된다 (ok)
     - 등록을 취소하면 Goods 발송이 취소된다 (ok)
-
-
+```
+<br/>
 
 ### 비기능 요구사항에 대한 검증
 
 <img width="1430" alt="2021-09-30 11 33 01" src="https://user-images.githubusercontent.com/26429915/135387119-a6e5e552-b2f2-4f09-961f-a0150dab9c55.JPG">
-
+```
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
     - 마라톤 등록 신청 시 결제처리 : 등록 완료 시 결제는 Request-Response 방식 처리
     - 나머지 모든 inter-microservice 트랜잭션: 등록 시 결제로 연결되는 트랜잭션 외에는 모두 Eventual Consistency 를 기본으로 채택함
-
+```
 
 
 ## 헥사고날 아키텍처 다이어그램 도출
     
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387120-1b553ff2-a2bf-4052-ac6a-1301966c507f.JPG">
-
-
+```
     - 호출관계에서 PubSub 과 Req/Resp 를 구분함
     - 서브 도메인과 바운디드 컨텍스트의 분리:  각 팀의 KPI 별로 아래와 같이 관심 구현 스토리를 나눠가짐
+```
 
+<br/><br/><br/>
 
 # 구현:
 
@@ -346,6 +357,7 @@ public class Registration {
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387213-9a625812-aaf6-4cb8-b715-3aab735a5270.JPG">
 
 
+<br/>
 
 ## 폴리글랏 퍼시스턴스
 
