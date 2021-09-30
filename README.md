@@ -64,12 +64,12 @@
     - 기능적 요구사항과 비기능적 요구사항을 누락 없이 반영하였는가?    
 
   - 서브 도메인, 바운디드 컨텍스트 분리
-    - 팀별 KPI 와 관심사, 상이한 배포주기 등에 따른  Sub-domain 이나 Bounded Context 를 적절히 분리하였고 그 분리 기준의 합리성이 충분히 설명되는가?
+    - 팀별 KPI 와 관심사, 상이한 배포주기 등에 따른 ?Sub-domain 이나 Bounded Context 를 적절히 분리하였고 그 분리 기준의 합리성이 충분히 설명되는가?
       - 적어도 3개 이상 서비스 분리
     - 폴리글랏 설계: 각 마이크로 서비스들의 구현 목표와 기능 특성에 따른 각자의 기술 Stack 과 저장소 구조를 다양하게 채택하여 설계하였는가?
     - 서비스 시나리오 중 ACID 트랜잭션이 크리티컬한 Use 케이스에 대하여 무리하게 서비스가 과다하게 조밀히 분리되지 않았는가?
   - 컨텍스트 매핑 / 이벤트 드리븐 아키텍처 
-    - 업무 중요성과  도메인간 서열을 구분할 수 있는가? (Core, Supporting, General Domain)
+    - 업무 중요성과? 도메인간 서열을 구분할 수 있는가? (Core, Supporting, General Domain)
     - Request-Response 방식과 이벤트 드리븐 방식을 구분하여 설계할 수 있는가?
     - 장애격리: 서포팅 서비스를 제거 하여도 기존 서비스에 영향이 없도록 설계하였는가?
     - 신규 서비스를 추가 하였을때 기존 서비스의 데이터베이스에 영향이 없도록 설계(열려있는 아키택처)할 수 있는가?
@@ -85,7 +85,7 @@
     - 분석단계에서의 유비쿼터스 랭귀지 (업무현장에서 쓰는 용어) 를 사용하여 소스코드가 서술되었는가?
   - Request-Response 방식의 서비스 중심 아키텍처 구현
     - 마이크로 서비스간 Request-Response 호출에 있어 대상 서비스를 어떠한 방식으로 찾아서 호출 하였는가? (Service Discovery, REST, FeignClient)
-    - 서킷브레이커를 통하여  장애를 격리시킬 수 있는가?
+    - 서킷브레이커를 통하여? 장애를 격리시킬 수 있는가?
   - 이벤트 드리븐 아키텍처의 구현
     - 카프카를 이용하여 PubSub 으로 하나 이상의 서비스가 연동되었는가?
     - Correlation-key:  각 이벤트 건 (메시지)가 어떠한 폴리시를 처리할때 어떤 건에 연결된 처리건인지를 구별하기 위한 Correlation-key 연결을 제대로 구현 하였는가?
@@ -114,11 +114,11 @@
 
 ## AS-IS 조직 (Horizontally-Aligned)
 
-<img width="1130" alt="2021-09-12 8 55 49" src="https://user-images.githubusercontent.com/26429915/135387123-b9862387-8a5e-482c-baa0-557e1f3e00a7.JPG">
+<img width="1130" alt="2021-09-30 8 55 49" src="https://user-images.githubusercontent.com/26429915/135387123-b9862387-8a5e-482c-baa0-557e1f3e00a7.JPG">
 
 ## TO-BE 조직 (Vertically-Aligned)
 
-<img width="1093" alt="2021-09-12 11 13 12" src="https://user-images.githubusercontent.com/26429915/135387125-8b481db9-e0c5-4378-8c84-44d15c52b155.JPG">
+<img width="1093" alt="2021-09-30 11 13 12" src="https://user-images.githubusercontent.com/26429915/135387125-8b481db9-e0c5-4378-8c84-44d15c52b155.JPG">
 
 
 ## Event Storming 결과
@@ -128,11 +128,11 @@
 
 ### 이벤트 도출
 
-<img width="1371" alt="2021-09-12 11 42 52" src="https://user-images.githubusercontent.com/26429915/135387126-5877858b-47a6-407c-8717-05d21714ff04.JPG">
+<img width="1371" alt="2021-09-30 11 42 52" src="https://user-images.githubusercontent.com/26429915/135387126-5877858b-47a6-407c-8717-05d21714ff04.JPG">
 
 ### 부적격 이벤트 탈락
 
-<img width="1371" alt="2021-09-12 11 43 07" src="https://user-images.githubusercontent.com/26429915/135387128-239fd79d-5104-4ee4-9e14-ebf0c3189adc.JPG">
+<img width="1371" alt="2021-09-30 11 43 07" src="https://user-images.githubusercontent.com/26429915/135387128-239fd79d-5104-4ee4-9e14-ebf0c3189adc.JPG">
 
 - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
 - 예약시> 상품이 조회됨 :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
@@ -140,49 +140,40 @@
 - Store > 상품이 입고됨 : Event 수신 후 Policy hander 처리 대상
 - Supplier > 출고가 취소됨 : 구현 범위 밖이라 제외, Supplier는 상품 출고 이력만 관리
 
-### 액터, 커맨드 부착하여 읽기 좋게
+### 액터, 커맨드 부착
 
-<img width="1426" alt="2021-09-13 9 28 38" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
+<img width="1426" alt="2021-09-30 9 28 38" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
 
-### 어그리게잇으로 묶기
+### Aggreggate 및 Bounded Text로 묶기
 
-<img width="1500" alt="2021-09-13 10 01 42" src="https://user-images.githubusercontent.com/26429915/135387105-5b298d62-1f7e-4a96-b60b-764f11420762.JPG">
+<img width="1500" alt="2021-09-30 10 01 42" src="https://user-images.githubusercontent.com/26429915/135387105-5b298d62-1f7e-4a96-b60b-764f11420762.JPG">
 
 - Registraion의 예약과 취소, Payment의 결제 요청, 결제 취소, Registermaster의 등록 접수/취소, Goods 발송/취소 등 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 Aggregate을 구성
 
-### 바운디드 컨텍스트로 묶기
-
-<img width="1475" alt="2021-09-13 10 02 53" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
-
-    - 도메인 서열 분리 
-      - Core Domain:  Regisgtration : 마라톤 등록 같이 접속이 몰리는 경우 Down이 있으면 안되는 핵심 서비스
-      - Supporting Domain: Registermaster : 등록정보와 결재 상태 정보를 최종 접수 하며, 참여 Goods를 보내는 서비스
-      - General Domain: Payment : 결제서비스로 Registration 과 연계될 수 있는 외부 결제 기능
-
 ### 폴리시 부착 (괄호는 수행주체, 전체 연계가 초기에 드러남)
 
-<img width="1551" alt="2021-09-13 10 47 23" src="https://user-images.githubusercontent.com/26429915/135387110-91060713-afb7-4b14-a4ec-18857b67eb94.JPG">
+<img width="1551" alt="2021-09-30 10 47 23" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 
-<img width="1498" alt="2021-09-13 10 49 08" src="https://user-images.githubusercontent.com/26429915/135387113-46ecafb2-658a-4752-b8f0-d8cec9ea1486.JPG">
+<img width="1498" alt="2021-09-30 10 49 08" src="https://user-images.githubusercontent.com/26429915/135387110-91060713-afb7-4b14-a4ec-18857b67eb94.JPG">
 
 ### 완성된 1차 모형
 
-<img width="1469" alt="2021-09-13 11 00 17" src="https://user-images.githubusercontent.com/26429915/135387115-436ac9c6-46c0-4bd7-b8e8-ff5d003cfb9b.JPG">
+<img width="1469" alt="2021-09-30 11 00 17" src="https://user-images.githubusercontent.com/26429915/135387113-46ecafb2-658a-4752-b8f0-d8cec9ea1486.JPG">
 
     - View Model 추가
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
-<img width="1448" alt="2021-09-13 11 11 59" src="https://user-images.githubusercontent.com/26429915/135387116-e47b8186-d102-40e1-9bb0-94d4e1f906cc.JPG">
+<img width="1448" alt="2021-09-30 11 11 59" src="https://user-images.githubusercontent.com/26429915/135387115-436ac9c6-46c0-4bd7-b8e8-ff5d003cfb9b.JPG">
 
     - 점장은 상품을 주문한다 (ok)
     - Supplier는 제품을 배송한다 (ok)
     - 배송이 되면 상품 갯수가 늘어난다 (ok) 
-    
 
-<img width="1430" alt="2021-09-13 11 16 05" src="https://user-images.githubusercontent.com/89987635/133099909-cfa99c23-c9d8-4f95-af6c-9a82bea15910.png">
+
+<img width="1430" alt="2021-09-30 11 16 05" src="https://user-images.githubusercontent.com/26429915/135387116-e47b8186-d102-40e1-9bb0-94d4e1f906cc.JPG">
 
     - 고객은 예약 내역을 취소한다 (ok)
     - 예약을 취소하면 결제가 취소된다 (ok)
@@ -191,7 +182,7 @@
 
 ### 비기능 요구사항에 대한 검증
 
-<img width="1430" alt="2021-09-13 11 33 01" src="https://user-images.githubusercontent.com/26429915/135387119-a6e5e552-b2f2-4f09-961f-a0150dab9c55.JPG">
+<img width="1430" alt="2021-09-30 11 33 01" src="https://user-images.githubusercontent.com/26429915/135387119-a6e5e552-b2f2-4f09-961f-a0150dab9c55.JPG">
 
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
     - 고객 등록시 결제처리 : 등록 완료 시 결제는 Request-Response 방식 처리
@@ -201,7 +192,7 @@
 
 ## 헥사고날 아키텍처 다이어그램 도출
     
-<img width="1481" alt="2021-09-13 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387120-1b553ff2-a2bf-4052-ac6a-1301966c507f.JPG">
+<img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387120-1b553ff2-a2bf-4052-ac6a-1301966c507f.JPG">
 
 
     - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
@@ -353,28 +344,27 @@ public interface RegistrationRepository extends PagingAndSortingRepository<Regis
 }
 
 ```
-- 적용 후 REST API 의 테스트 (PostMan 기준)
+- Codebuild 후 기능 TEST
 ```
-
 # Registration 서비스의 등록 요청
-POST http://localhost:8080/registrations/register
-{
-    "name" :"HJK1",
-    "phoneNo" :"010-8944-4256",
-    "address" :"인천시연수구",
-    "topSize" :"110",
-    "bottomSize" :"100",
-    "amount" : 20000
-}
+<img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387215-6f9f562e-fc37-4718-8dc7-c3f676a4c7e9.JPG">
 
-# Registraion 서비스의 등록 취소 요청 : cancel/{등록 id}로 취소
-http://localhost:8080/registrations/cancel/2
+# Payment 서비스의 결재 요청
+<img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387219-add5a3b9-89b6-46b7-83d2-90ff3da0976d.JPG">
 
-# Dashboard 서비스의 조회 요청
-http://localhost:8080/dashboards
+# RegisterMaster 서비스의 접수 요청
+<img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387221-ed3c49da-9df2-4177-bd30-eff216eba573.JPG">
+
+# Dashboard 서비스의 조회 기능
+<img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387224-f79904e9-2edf-4edd-8896-578cb5361ba2.JPG">
+
+# Registration 서비스의 취소 요청
+<img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387212-1d606539-3520-4e3e-8436-1cf41dc22725.JPG">
+
+# Dashboard 서비스의 조회 기능(Cancel)
+<img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387213-9a625812-aaf6-4cb8-b715-3aab735a5270.JPG">
 
 
-```
 
 ## 폴리글랏 퍼시스턴스
 
@@ -502,61 +492,8 @@ public interface PayService {
 ```
 
 
-```
-# 결제 (Payment) 서비스를 잠시 내려놓음 (ctrl+c)
 
-# 등록처리
-POST http://localhost:8080/registrations/register   #Fail
-{
-    "name" :"HJK1",
-    "phoneNo" :"010-1234-4256",
-    "address" :"경기도성남시",
-    "topSize" :"110",
-    "bottomSize" :"100",
-    "amount" : 20000
-}
-
-POST http://localhost:8080/registrations/register   #Fail
-{
-    "name" :"SCKIM",
-    "phoneNo" :"010-2223-4256",
-    "address" :"서울특별시종로구",
-    "topSize" :"105",
-    "bottomSize" :"100",
-    "amount" : 20000
-}
-
-
-#결제서비스 재기동
-cd Payment
-mvn spring-boot:run
-
-# 등록처리
-POST http://localhost:8080/registrations/register   #Success
-{
-    "name" :"HJK1",
-    "phoneNo" :"010-1234-4256",
-    "address" :"경기도성남시",
-    "topSize" :"110",
-    "bottomSize" :"100",
-    "amount" : 20000
-}
-
-POST http://localhost:8080/registrations/register   #Success
-{
-    "name" :"SCKIM",
-    "phoneNo" :"010-2223-4256",
-    "address" :"서울특별시종로구",
-    "topSize" :"105",
-    "bottomSize" :"100",
-    "amount" : 20000
-}
-
-```
-
-
-
-## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
+## 비동기식 호출 / 장애격리 / Eventual Consistency
 
 
 결제가 이루어진 후에 Registermaster 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 불필요한 커플링을 최소화한다.
@@ -684,44 +621,12 @@ GET http://localhost:8080/Registermaster/     # 등록상태와 결재 상태가
 
 ```
 
-## ??????????????????????Correlation (보상패턴) 구현
-
-결제 승인시 상품의 갯수를 차감하고, 결제 취소시 상품의 갯수를 원복해준다.
-
-```
-@StreamListener(KafkaProcessor.INPUT)
-public void wheneverPayRequested_Reserve(@Payload PayRequested payRequested){
-
-  ...
-        
-    // 예약이 되면 상품의 보유 갯수를 줄여준다  
-    Product product = productRepository.findById(payRequested.getProductId()).orElseThrow(null);
-    product.setProductQty(product.getProductQty() - payRequested.getReserveQty());
-    productRepository.save(product);
-        
-}
-    
-    
-@StreamListener(KafkaProcessor.INPUT)
-public void wheneverPayCancelled_ReservationCancel(@Payload PayCancelled payCancelled){
-
-    ...
-       
-    // 예약이 취소되는 상품의 보유 갯수를 늘려준다 
-    Product product = productRepository.findById(payCancelled.getProductId()).orElseThrow(null);
-    product.setProductQty(product.getProductQty() + payCancelled.getReserveQty());
-    productRepository.save(product);
-
-}
-
-```
-
 ## CQRS 패턴 구현
 
 등록과 결제 서비스의 완료 / 취소에 대한 현황을 Dashboard로 구현하여 조회할 수 있게 제공
 
 
-예약, 결제 취소, 픽업에 대한 Event Listener 구현
+등록완료, 결제 완료/취소에 대한 Event Listener 구현
 
 ```
 DashboardViewHandler.java
@@ -803,69 +708,56 @@ DashboardViewHandler.java
 - 레포지터리 생성 확인
   - 이미지 변경 필요.
 
-![image](https://user-images.githubusercontent.com/22004206/132270281-d9f0154e-ba48-442f-90f2-9208b6d1886e.png)
+![image](https://user-images.githubusercontent.com/26429915/135389656-2da72367-f66b-4cc4-9cf1-1fd44c1510b2.JPG)
 
 <br/>
 
 - 생성 할 CodeBuild
-  - convenience-gateway
-  - convenience-reservation
-  - convenience-pay
-  - convenience-store
-  - convenience-stock
-  - convenience-view
+  -user08-gateway
+  -user08-registration
+  -user08-payment
+  -user08-registermaster
+  -user08-dashboard
 <br/>
 
+- 연결된 github에 Commit 진행시 5개의 서비스들 build 진행 여부 및 성공 확인 
 
-- github의 각 서비스의 서브 폴더에 buildspec-kubect.yaml 위치.
-
-![image](https://user-images.githubusercontent.com/22004206/133250463-b7c80d2c-e58b-4329-8ded-dca2b146215a.png)
-![image](https://user-images.githubusercontent.com/22004206/133250705-66c3e747-e3aa-4aa5-90a0-1e9efb4210c5.png)
-![image](https://user-images.githubusercontent.com/22004206/133250824-3e9689f6-2327-45dd-8322-bacad102e1d3.png)
-![image](https://user-images.githubusercontent.com/22004206/133250923-f62f98bb-28bb-4dea-ab6f-6b6b9081c9c1.png)
-![image](https://user-images.githubusercontent.com/22004206/133251040-94926311-83d1-422e-95d9-7a8950227966.png)
-
-
-- 연결된 github에 Commit 진행시 6개의 서비스들 build 진행 여부 및 성공 확인 
-
-![image](https://user-images.githubusercontent.com/22004206/133251313-c2df253e-0b98-4234-84a2-c829ab39a829.png)
-
-![image](https://user-images.githubusercontent.com/22004206/133251727-70c8ce0e-edb7-46bd-8876-6d242e29b05a.png)
+![image](https://user-images.githubusercontent.com/26429915/135387232-4b500cdd-8913-4c3c-85d0-eeb5db52c660.JPG)
 
 
 -	배포된 6개의 Service  확인
 ```
 > kubectl get all
 
-NAME                          READY   STATUS    RESTARTS   AGE
-gateway-6bdf6cf865-n4b8v      1/1     Running   0          15m
-pay-5bdf5998d9-qpdtk          1/1     Running   0          14m
-reservation-c544fd6bd-47sm5   1/1     Running   0          13m
-siege-75d5587bf6-8xnmc        1/1     Running   0          93m
-store-546b7cd7c8-gghdv        1/1     Running   0          15m
-supplier-6477564dd4-tq9tt     1/1     Running   0          14m    
+NAME                                   READY   STATUS    RESTARTS   AGE
+pod/dashboard-6f8df44cbf-z2vp8         1/1     Running   0          23m
+pod/efs-provisioner-684b79d857-dvrpt   1/1     Running   0          3h19m
+pod/gateway-56f448c7dc-v9njt           1/1     Running   0          23m
+pod/payment-5848754879-ghmrs           1/1     Running   0          23m
+pod/registermaster-67d96dccc6-5frv2    1/1     Running   0          23m
+pod/registration-6d886976b-q95lh       1/1     Running   0          23m
+pod/siege-75d5587bf6-9lqdl             1/1     Running   0          123m
+pod/siege-pvc                          1/1     Running   0          73m   
 ```
-
 
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
 - 시나리오
-  1. 예약(reservation) --> 결재(pay)시의 연결을 RESTful Request/Response 로 연동하여 구현 함. 결제 요청이 과도할 경우 CB가 발생하고 fallback으로 결재 지연 메새지를 보여줌으로 장애 격리 시킴.
+  1. 예약(registrations) --> 결재(payment)로 연결을 RESTful Request/Response 로 연동하여 구현 함. 결제 요청이 과도할 경우 CB가 발생하고 fallback으로 결재 지연 메새지를 보여줌으로 장애 격리 시킴.
   2. circuit break의 timeout은 610mm 설정. 
   3. Pay 서비스에 임의의 부하 처리.
   4. 부하테스터(seige) 를 통한 circuit break 확인. 
     - 결재 지연 메세지 확인.
-    - seige의 Availability 100% 확인.
-
+    - siege의 Availability 100% 확인.
 <br/>
     
-- 서킷 브레이킹 프레임워크의 선택
+- 서킷 브레이킹 구현
   - Spring FeignClient + Hystrix 옵션을 사용하여 구현함
 
-- Hystrix 를 설정:  요청처리 쓰레드에서 처리시간이 610 밀리가 넘어서기 시작하여 어느정도 유지되면 CB 회로가 닫히고 결재 로직 대신 fallback으로 결재 지연 메세지 보여줌으로 장애 격리.
+- Hystrix 를 설정 :  요청처리 쓰레드에서 처리시간이 610 밀리가 넘어서기 시작하여 어느정도 유지되면 CB가 작동하고, 결제 로직 대신 fallback으로 결제 지연 메세지 보여줌으로 장애 격리
 ```
-# application.yml
+# Registration -> application.yml
 
 feign:
   hystrix:
@@ -877,9 +769,9 @@ hystrix:
     default:
       execution.isolation.thread.timeoutInMilliseconds: 610
 ```
-- Pay 서비스에 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게 아래 코드 추가
+- Payment 서비스에 임의 부하 처리 - 400 밀리에서 증감 220 밀리 사이에서 부하가 걸리도록 아래 코드 추가
 ```
-# PayHisotryController.java
+# PayController.java
 
 try {
     Thread.currentThread().sleep((long) (400 + Math.random() * 220));
@@ -887,22 +779,22 @@ try {
     e.printStackTrace();
 }
 ```
-- Resevation 서비스에 FeignClient fallback 코드 추가.
+- Registration/PayService에 FeignClient fallback 코드 추가.
 ```
-# PayHistoryService.java
+# PayService.java
 
-@FeignClient(name ="delivery", url="${api.url.pay}", fallback = PayHistoryServiceImpl.class)
+@FeignClient(name="pays", url="${api.url.pay}", fallback = PayServiceFallback.class)
 ```
 
 ```
 # PayHistoryServiceImple.java
 
 @Service
-public class PayHistoryServiceImpl implements PayHistoryService {
+public class PayServiceImpl implements PayService {
     /**
      * Pay fallback
      */
-    public boolean request(PayHistory payhistory) {
+    public boolean payRequest(Pay pay) {
         System.out.println("@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@");
         System.out.println("@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@");
         System.out.println("@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@");
@@ -912,64 +804,25 @@ public class PayHistoryServiceImpl implements PayHistoryService {
 ```
 
 - 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
-  - 동시사용자 100명, 60초 동안 실시
-  - Reservation 서비스의 log 확인.
+  - 동시사용자 100명, 30초 동안 실시
+  - Registration 서비스의 log 확인.
 ```
-> siege -c100 -t60S --content-type "application/json" 'http://reservation:8080/reservation/order POST {"productId":1,"productName":"Milk","productPrice":1200,"customerId":2,"customerName":"Sam","customerPhone":"010-9837-0279","qty":2}'
+> siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 분당구","topSize":"110","bottomSize":"100","amount":20000}'
 
-** SIEGE 4.1.1
-** Preparing 100 concurrent users for battle.
-The server is now under siege...
-HTTP/1.1 201     2.19 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.20 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.20 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.20 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.20 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.21 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.21 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.21 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.22 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.22 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-HTTP/1.1 201     2.66 secs:     378 bytes ==> POST http://reservation:8080/reservation/order
-                                        
-                                        :
-                                        :
-                                        :
+![image](https://user-images.githubusercontent.com/26429915/135387230-aae3cccb-97b7-47c7-9881-2c0e0774efd9.JPG)
 
-*Lifting the server siege...
-Transactions:		        8776 hits
-Availability:		      100.00 %
-Elapsed time:		       29.83 secs
-Data transferred:	        1.67 MB
-Response time:		        0.34 secs
-Transaction rate:	      294.20 trans/sec
-Throughput:		        0.06 MB/sec
-Concurrency:		       99.32
-Successful transactions:        8776
-Failed transactions:	           0
-Longest transaction:	        2.24
-Shortest transaction:	        0.00
+![image](https://user-images.githubusercontent.com/26429915/135387227-cf4a7720-a5a5-41e6-8de3-0d314bd56eb6.JPG)
 
 ```
 - 결재 서비스에 지연이 발생하는 경우 결재지연 메세지를 보여주고 장애에 분리되어 Avalablity가 100% 이다. 
 
 - 예약 서비스(reservation)의 log에 아래에서 결재 지연 메세지를 확인한다.
-```
-              :
-              :
-@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@
-@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@
-@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@
-########## 결제가 실패하였습니다 ############
-              :
-              :
-```
 
 - 시스템은 죽지 않고 지속적으로 과도한 부하시 CB 에 의하여 회로가 닫히고 결재 지연중 메세지를 보여주며 고객을 장애로 부터 격리시킴.
 
 
 ## 오토스케일 아웃
-- 예약서비스(Reservation)에 대해  CPU Load 50%를 넘어서면 Replica를 10까지 늘려준다. 
+- 등록서비스(Registration)에 대해  CPU Load 50%를 넘어서면 Replica를 10까지 늘려준다. 
   - buildspec-kubectl.yaml
 ```
           cat <<EOF | kubectl apply -f -
@@ -1012,68 +865,27 @@ Shortest transaction:	        0.00
 > kubectl exec pod/[SIEGE-POD객체] -it -- /bin/bash
 ```
 
-- 예약 서비스(reseravation)에 워크로드를 동시 사용자 100명 60초 동안 진행한다.
+- 등록 서비스(reseravation)에 워크로드를 동시 사용자 100명 30초 동안 진행한다.
 ```
-siege -c100 -t60S --content-type "application/json" 'http://reservation:8080/reservation/order POST {"productId":1,"productName":"Milk","productPrice":1200,"customerId":2,"customerName":"Sam","customerPhone":"010-9837-0279","qty":2}'
+siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 분당구","topSize":"110","bottomSize":"100","amount":20000}'
 ```
-- 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다 : 각각의 Terminal에 
-  - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다.
-  
-```
-> kubectl get deploy reservation -w
+![image](https://user-images.githubusercontent.com/26429915/135387235-3933bf1f-189c-42c9-ac34-3361502dc117.JPG)
 
-NAME          READY   UP-TO-DATE   AVAILABLE   AGE
-reservation   1/1     1            1           63m
-reservation   1/3     1            1           63m
-reservation   1/3     1            1           63m
-reservation   1/3     1            1           63m
-reservation   1/3     3            1           63m
-:
-
-
-> watch -n 1 kubectl top po
-NAME                                 READY   STATUS    RESTARTS   AGE   IP               NODE                                              NOMINATED NODE   READINESS GATES
-pod/efs-provisioner-77c568c8-pmkxc   1/1     Running   0          16h   192.168.13.208   ip-192-168-5-42.ca-central-1.compute.internal     <none>           <none>
-pod/gateway-564d85fbc4-dbhht         1/1     Running   0          70m   192.168.19.153   ip-192-168-5-42.ca-central-1.compute.internal     <none>           <none>
-pod/pay-666cf5c795-blfqk             1/1     Running   0          31m   192.168.32.153   ip-192-168-61-25.ca-central-1.compute.internal    <none>           <none>
-pod/reservation-779f5585bc-6bdxg     1/1     Running   0          31m   192.168.28.44    ip-192-168-5-42.ca-central-1.compute.internal     <none>           <none>
-pod/reservation-779f5585bc-hgjl9     0/1     Running   0          37s   192.168.52.66    ip-192-168-61-25.ca-central-1.compute.internal    <none>           <none>
-pod/reservation-779f5585bc-rshlh     0/1     Running   0          37s   192.168.95.48    ip-192-168-73-205.ca-central-1.compute.internal   <none>           <none>
-pod/siege-pvc                        1/1     Running   0          16h   192.168.1.22     ip-192-168-20-33.ca-central-1.compute.internal    <none>           <none>
-
-
-> watch -n 1 kubectl get all -o wide 
-NAME                             CPU(cores)   MEMORY(bytes)
-efs-provisioner-77c568c8-pmkxc   1m           10Mi
-gateway-564d85fbc4-dbhht         7m           150Mi
-pay-666cf5c795-blfqk             6m           254Mi
-reservation-779f5585bc-6bdxg     4m           280Mi
-reservation-779f5585bc-hgjl9     487m         154Mi
-reservation-779f5585bc-rshlh     483m         159Mi
-siege-pvc                        0m           6Mi
-store-7f9f99dbfc-tfsvr           5m           258Mi
-supplier-696bb6f7dd-xdpkc        5m           262Mi
-view-bdf94d47d-shvwc             4m           279Mi
-
-	
-> kubectl get hpa
-NAME              REFERENCE                TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-reservation-hpa   Deployment/reservation   1%/50%    1         10        6          82m	
 ```
 <br/>
 	
 ## Self Healing
 ### ◆ Liveness- HTTP Probe
 - 시나리오
-  1. Reservation 서비스의 Liveness 설정을 확인힌다. 
-  2. Reservation 서비스의 Liveness Probe는 actuator의 health 상태 확인을 설정되어 있어 actuator/health 확인.
+  1. Registration 서비스의 Liveness 설정을 확인힌다. 
+  2. Registration 서비스의 Liveness Probe는 actuator의 health 상태 확인을 설정되어 있어 actuator/health 확인.
   3. pod의 상태 모니터링
-  4. Reservation 서비스의 Liveness Probe인 actuator를 down 시켜 Reservation 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
-  5. Reservation 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
+  4. Registration 서비스의 Liveness Probe인 actuator를 down 시켜 Registration 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
+  5. Registration 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
 
 <br/>
 
-- Reservation 서비스의 Liveness probe 설정 확인
+- Registration 서비스의 Liveness probe 설정 확인
 ```
 kubectl get deploy reservation -o yaml
 
@@ -1098,76 +910,30 @@ kubectl get deploy reservation -o yaml
 ```
 
 - Liveness Probe 확인 
-```
-> http http://reservation:8080/actuator/health      # Liveness Probe 확인
-
-HTTP/1.1 200 
-Content-Type: application/vnd.spring-boot.actuator.v2+json;charset=UTF-8
-Date: Tue, 07 Sep 2021 14:58:15 GMT
-Transfer-Encoding: chunked
-
-{
-    "status": "UP"
-}
-```
+![image](https://user-images.githubusercontent.com/26429915/135387196-783a471d-9a33-454c-b49a-b8066381b299.JPG)
 
 - Liveness Probe Fail 설정 및 확인 
-  - Reservation Liveness Probe를 명시적으로 Fail 상태로 전환한다.
-```
-> http DELETE http://reservation:8080/healthcheck    #actuator health 를 DOWN 시킨다.
-> http http://reservation:8080/actuator/health
-HTTP/1.1 503 
-Connection: close
-Content-Type: application/vnd.spring-boot.actuator.v2+json;charset=UTF-8
-Date: Wed, 08 Sep 2021 01:56:07 GMT
-Transfer-Encoding: chunked
+  - Registration Liveness Probe를 명시적으로 Fail 상태로 전환한다.
+![image](https://user-images.githubusercontent.com/26429915/135387201-6407dc1c-aced-4280-a3c4-07502122e5d8.JPG)
 
-{
-    "status": "DOWN"
-}
-```
 
 - Probe Fail에 따른 쿠버네티스 동작확인  
-  - Reservation 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
+  - Registration 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
     - reservation pod의 RESTARTS가 1로 바뀐것을 확인. 
     - describe 를 통해 해당 pod가 restart 된 것을 알 수 있다.
-```
-> kubectl get pod
-NAME                          READY   STATUS    RESTARTS
-gateway-5587878c8c-7rhx8      1/1     Running   0          8m26s
-pay-657d6ff8f5-wvmxs          1/1     Running   0          8m24s
-reservation-dc4ff786c-bxp6m   1/1     Running   1          8m23s
-siege-75d5587bf6-8xnmc        1/1     Running   0          6m31s
-store-6486b7565b-txjjr        1/1     Running   0          8m23s
-supplier-9bc6bc8b5-m4l8m      1/1     Running   0          8m23s
+![image](https://user-images.githubusercontent.com/26429915/135387203-59454d50-f7d2-46e9-9a94-3ff87202ca9c.JPG)
+![image](https://user-images.githubusercontent.com/26429915/135387202-ba805b78-03bf-4c73-b037-3a97f177a861.JPG)
 
-
-
-> kubectl describe pod/reservation-dc4ff786c-bxp6m
-Events:
-  Type     Reason     Age                  From               Message
-  ----     ------     ----                 ----               -------
-  Normal   Scheduled  21m                  default-scheduler  Successfully assigned default/reservation-dc4ff786c-bxp6m to ip-192-168-50-127.ca-central-1.compute.internal
-  Normal   Pulling    21m                  kubelet            Pulling image "422489764856.dkr.ecr.ca-central-1.amazonaws.com/user-dongjin-reservation:6a6573b58027490f3d56be72e85d445d6da87746"
-  Normal   Pulled     21m                  kubelet            Successfully pulled image "422489764856.dkr.ecr.ca-central-1.amazonaws.com/user-dongjin-reservation:6a6573b58027490f3d56be72e85d445d6da87746" in 1.323451813s
-  Normal   Killing    15m                  kubelet            Container reservation failed liveness probe, will be restarted
-  Normal   Created    15m (x2 over 21m)    kubelet            Created container reservation
-  Normal   Started    15m (x2 over 21m)    kubelet            Started container reservation
-  Normal   Pulled     15m                  kubelet            Container image "422489764856.dkr.ecr.ca-central-1.amazonaws.com/user-dongjin-reservation:6a6573b58027490f3d56be72e85d445d6da87746" already present on machine
-  Warning  Unhealthy  14m (x4 over 21m)    kubelet            Readiness probe failed: Get "http://192.168.37.58:8080/actuator/health": dial tcp 192.168.37.58:8080: connect: connection refused
-  Warning  Unhealthy  4m41s (x8 over 15m)  kubelet            Liveness probe failed: HTTP probe failed with statuscode: 503
-  Warning  Unhealthy  4m36s (x8 over 15m)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
-```
 
 	
 ## 무정지 재배포
 ### ◆ Rediness- HTTP Probe
 - 시나리오
-  1. 현재 구동중인 Reservation 서비스에 길게(3분) 부하를 준다. 
+  1. 현재 구동중인 Registration 서비스에 길게(3분) 부하를 준다. 
   2. reservation pod의 상태 모니터링
   3. AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
-  4. Codebuild를 통해 새로운 버전의 Reservation이 배포 된다. 
-  5. pod 상태 모니터링에서 기존 Reservation 서비스가 Terminating 되고 새로운 Reservation 서비스가 Running하는 것을 확인한다.
+  4. Codebuild를 통해 새로운 버전의 Registration이 배포 된다. 
+  5. pod 상태 모니터링에서 기존 Registration 서비스가 Terminating 되고 새로운 Registration 서비스가 Running하는 것을 확인한다.
   6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avality가 100%가 된다.
 
 <br/>
@@ -1185,65 +951,28 @@ Events:
                       failureThreshold: 10
 ```
 
-- 현재 구동중인 Reservation 서비스에 길게(2분) 부하를 준다. 
+- 현재 구동중인 Registration 서비스에 길게(1~2분) 부하를 준다. 
 ```
-> siege -v -c1 -t120S --content-type "application/json" 'http://reservation:8080/reservation/order POST {"productId":1,"productName":"Milk","productPrice":1200,"customerId":2,"customerName":"Sam","customerPhone":"010-9837-0279","qty":2}'
-```
-
-- pod의 상태 모니터링
-```
-> watch -n 1 kubectl get pod    ==> pod가 생성되고 소멸되는 과정 확인.
-
-NAME                          READY   STATUS    RESTARTS   AGE
-gateway-6bdf6cf865-n4b8v      1/1     Running   0          15m
-pay-5bdf5998d9-qpdtk          1/1     Running   0          14m
-reservation-c544fd6bd-47sm5   1/1     Running   0          13m
-siege-75d5587bf6-8xnmc        1/1     Running   0          93m
-store-546b7cd7c8-gghdv        1/1     Running   0          15m
-supplier-6477564dd4-tq9tt     1/1     Running   0          14m    
+> siege -v -c1 -t120S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 
 ```
 
 - AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
-  Resevatio 서비스의 아무 코드나 수정하고 commit 한다. 
+  Registration 서비스의 코드를 수정하고 GIT에 commit 한다. 
   배포 될때까지 잠시 기다린다. 
-  Ex) buildspec-kubectl.yaml에 carrage return을  추가 commit 한다. 
+
+![image](https://user-images.githubusercontent.com/26429915/135387210-db904bf8-5e1e-45e5-8d6c-fc95a71c75ec.JPG)
 
 
+- pod 상태 모니터링에서 기존 Registration 서비스가 Terminating 되고 새로운 Registration 서비스가 Running하는 것을 확인한다.
 
-- pod 상태 모니터링에서 기존 Reservation 서비스가 Terminating 되고 새로운 Reservation 서비스가 Running하는 것을 확인한다.
-```
-Every 1.0s: kubectl get pod   
+![image](https://user-images.githubusercontent.com/26429915/135387208-a8b118c6-5671-4179-b750-4576f866d250.JPG)
 
-NAME                           READY   STATUS    RESTARTS   AGE
-gateway-5c7f47c9c5-z5slx       0/1     Running   0          11s
-gateway-6bdf6cf865-n4b8v       1/1     Running   0          20m
-pay-5bdf5998d9-qpdtk           1/1     Running   0          19m
-pay-797f74998c-wh94q           0/1     Running   0          9s
-reservation-585667dc8c-wlmtb   0/1     Running   0          8s
-reservation-c544fd6bd-47sm5    1/1     Running   0          18m
-siege-75d5587bf6-8xnmc         1/1     Running   0          98m
-store-546b7cd7c8-gghdv         1/1     Running   0          20m
-store-774c6757bd-gh5hx         0/1     Running   0          10s
-supplier-6477564dd4-tq9tt      1/1     Running   0          19m
-supplier-7bc4ff789d-qgkwk      0/1     Running   0          9s
-```
 
-- Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avalabilty가 100%가 된다.
-```
-Lifting the server siege...
-Transactions:		       18572 hits
-Availability:		      100.00 %
-Elapsed time:		      119.79 secs
-Data transferred:	        6.62 MB
-Response time:		        0.01 secs
-Transaction rate:	      155.04 trans/sec
-Throughput:		        0.06 MB/sec
-Concurrency:		        0.95
-Successful transactions:       18572
-Failed transactions:	           0
-Longest transaction:	        0.68
-Shortest transaction:	        0.00
-```
+- Readiness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avalabilty가 100%가 된다.
+
+![image](https://user-images.githubusercontent.com/26429915/135387211-40293b13-f127-47a8-abce-e36d1c18e9ec.JPG)
+
+
 
 ## Persistant Volume Claim
 - 시나리오
@@ -1254,35 +983,17 @@ Shortest transaction:	        0.00
   
 
 - EFS 등록 화면 추가..
-```
-이미지 추가.
-```
+![image](https://user-images.githubusercontent.com/26429915/135391975-3fa8c9ce-86bb-4c14-b8ab-74bfb248e870.JPG)
+
 
 - provisioner 확인
-```
-> kubectl get pod
-
-NAME                              READY   STATUS    RESTARTS   AGE
-efs-provisioner-5976978f5-cqbzq   1/1     Running   0          19s
-```
-
 - storageClass 등록, 조회
-```
-> kubectl get sc
-NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-aws-efs         my-aws.com/aws-efs      Delete          Immediate              false                  14s
-gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  27h
-```
+![image](https://user-images.githubusercontent.com/26429915/135392360-e41c9395-b8f3-4005-9dde-dcaa37218462.JPG)
+
+
 - pvc 확인
-```
-> kubectl get pvc
-> kubectl describe pvc
-  Type    Reason                 Age                From                                                                                     Message
-  ----    ------                 ----               ----                                                                                     -------
-  Normal  ExternalProvisioning   35s (x2 over 35s)  persistentvolume-controller                                                              waiting for a volume to be created, either by external provisioner "my-aws.com/aws-efs" or manually created by system administrator
-  Normal  Provisioning           35s                my-aws.com/aws-efs_efs-provisioner-5976978f5-cqbzq_5cde0b7c-906d-477e-9e02-5b4823a9ca5c  External provisioner is provisioning volume for claim "default/aws-efs"
-  Normal  ProvisioningSucceeded  35s                my-aws.com/aws-efs_efs-provisioner-5976978f5-cqbzq_5cde0b7c-906d-477e-9e02-5b4823a9ca5c  Successfully provisioned volume pvc-c770d8b7-ef09-4a19-903b-cced4daa9f1d
-```
+![image](https://user-images.githubusercontent.com/26429915/135392358-90289027-0e32-40ca-812f-b50f58b95466.JPG)
+
 <br/>
 
 - 각 Deployment의 PVC 생성정보는 buildspec-kubeclt.yaml에 적용되어있다.
@@ -1306,79 +1017,37 @@ gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   f
 # AbstractEvent.java
 
 // PVC Test
-public void saveJasonToPvc(String strJson){
-    File file;
+    public void saveJasonToPvc(String strJson){
+        File file;
 
-    if (strJson.equals("CANCEL")){
-    file = new File("/mnt/aws/reservationCancelled_json.txt");
-    }else{
-        file = new File("/mnt/aws/productReserved_json.txt");
-    }
+        if (strJson.equals("CANCEL")){
+		    file = new File("/mnt/aws/registrationCancelled_json.txt");
+        }else{
+            file = new File("/mnt/aws/payRequested_json.txt");
+        }
 
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-} 
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			writer.write(strJson);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}     
 
-
-public void saveJasonToPvc(String strJson){
-    File file;
-
-    if (strJson.equals("RESERVE")){
-    file = new File("/mnt/aws/payRequested_json.txt");
-    }else{
-        file = new File("/mnt/aws/payCancelled_json.txt");
-    }
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-}
-
-
-// PVC Test
-public void saveJasonToPvc(String strJson){
-    
-    File file = new File("/mnt/aws/productPickedupjson.txt");
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-}  
 ```
 
 - 각 서비스에서 저장한 Event 정보파일을 동일한 PVC를 사용하는 Pod를 생성하여 배포 후 /mnt/aws에 저장되어 있는지 확인. 
-```
-> kubectl apply -f kubectl apply -f https://raw.githubusercontent.com/djjoung/convenience/main/yaml/pod-with-pvc.yaml
+
+> kubectl apply -f kubectl apply -f https://raw.githubusercontent.com/sasin4/marathon/master/yaml/pod-with-pvc.yaml
 > kubectl get pod
-> kubectl describe pod reservation
-> kubectl exec -it seieg -- /bin/bash
+> kubectl describe pod registrations
+> kubectl exec -it siege-pvc -- /bin/bash
 > ls -al /mnt/aws
 
-total 20
-drwxrws--x 2 root 2000 6144 Sep 15 14:39 .
-drwxr-xr-x 1 root root   17 Sep 15 12:33 ..
--rw-r--r-- 1 root 2000  154 Sep 15 14:37 payCancelled_json.txt
--rw-r--r-- 1 root 2000   99 Sep 15 14:29 productDelivered_json.txt
--rw-r--r-- 1 root 2000  158 Sep 15 14:36 productPickedupjson.txt
--rw-r--r-- 1 root 2000   90 Sep 15 14:37 productReserved_json.txt
-
-```
-- 서비스 Event를 저장한 파일들을 확인 할 수 있다. 
+![image](https://user-images.githubusercontent.com/26429915/135387207-bd328393-f6b5-48ec-a083-4babd9630863.JPG)
 
 
-
+[END]
 
 <br/>
