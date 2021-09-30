@@ -35,6 +35,9 @@ public class Registration {
         pay.setBottomSize(this.bottomSize);
         pay.setAmount(this.amount);
         
+
+
+        
         System.out.println("########################## Registration.java -> PostPersist -> payRequest");
         System.out.println("id : "+ this.id);
         System.out.println("name : "+ this.name);

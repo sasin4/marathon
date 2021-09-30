@@ -810,7 +810,7 @@ public class PayServiceImpl implements PayService {
 - 시스템은 죽지 않고 지속적으로 과도한 부하시 CB 에 의하여 회로가 닫히고 결재 지연중 메세지를 보여주며 고객을 장애로 부터 격리시킴.
 
 
-
+<br/><br/><br/>
 
 ## 오토스케일 아웃
 - 등록서비스(Registration)에 대해  CPU Load 50%를 넘어서면 Replica를 10까지 늘려준다. 
@@ -860,19 +860,21 @@ public class PayServiceImpl implements PayService {
 ```
 siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 분당구","topSize":"110","bottomSize":"100","amount":20000}'
 ```
+
 - 결과확인
+
 ![image](https://user-images.githubusercontent.com/26429915/135387235-3933bf1f-189c-42c9-ac34-3361502dc117.JPG)
 
 
 
-<br/>
+<br/><br/>
 
 ## Self Healing
 ### ◆ Liveness- HTTP Probe
 - 시나리오
   1. Registration 서비스의 Liveness 설정을 확인힌다. 
-  2. Registration 서비스의 Liveness Probe는 actuator의 health 상태 확인을 설정되어 있어 actuator/health 확인.
-  3. pod의 상태 모니터링
+  2. Registration 서비스의 Liveness Probe는 actuator의 health 상태를 확인한다.
+  3. pod의 상태를 모니터링 한다
   4. Registration 서비스의 Liveness Probe인 actuator를 down 시켜 Registration 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
   5. Registration 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
 
@@ -902,31 +904,32 @@ kubectl get deploy reservation -o yaml
 ```
 
 - Liveness Probe 확인 
+
 ![image](https://user-images.githubusercontent.com/26429915/135387196-783a471d-9a33-454c-b49a-b8066381b299.JPG)
 
-- Liveness Probe Fail 설정 및 확인 
-  - Registration Liveness Probe를 명시적으로 Fail 상태로 전환한다.
+- Liveness Probe Down 설정 및 확인 
+  - Registration Liveness Probe를 Down 상태로 전환한다.
 ![image](https://user-images.githubusercontent.com/26429915/135387201-6407dc1c-aced-4280-a3c4-07502122e5d8.JPG)
 
 
 - Probe Fail에 따른 쿠버네티스 동작확인  
-  - Registration 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
-    - reservation pod의 RESTARTS가 1로 바뀐것을 확인. 
-    - describe 를 통해 해당 pod가 restart 된 것을 알 수 있다.
+  - registration 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
+  - registration pod의 RESTARTS가 1로 바뀐것을 확인. 
+  - describe 를 통해 해당 pod가 Liveness가 Unhealthy, failed 된 것을 알 수 있다.
 ![image](https://user-images.githubusercontent.com/26429915/135387203-59454d50-f7d2-46e9-9a94-3ff87202ca9c.JPG)
 ![image](https://user-images.githubusercontent.com/26429915/135387202-ba805b78-03bf-4c73-b037-3a97f177a861.JPG)
 
-
+<br/><br/>
 	
 ## 무정지 재배포
 ### ◆ Rediness- HTTP Probe
 - 시나리오
   1. 현재 구동중인 Registration 서비스에 길게(3분) 부하를 준다. 
-  2. reservation pod의 상태 모니터링
-  3. AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
+  2. reservation pod의 상태를 모니터링
+  3. AWS CodeBuild에 연결 되어있는 github로 코드를 commit한다.
   4. Codebuild를 통해 새로운 버전의 Registration이 배포 된다. 
   5. pod 상태 모니터링에서 기존 Registration 서비스가 Terminating 되고 새로운 Registration 서비스가 Running하는 것을 확인한다.
-  6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avality가 100%가 된다.
+  6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 siege의 Avality가 100%가 된다.
 
 <br/>
 
@@ -945,11 +948,10 @@ kubectl get deploy reservation -o yaml
 
 - 현재 구동중인 Registration 서비스에 길게(1~2분) 부하를 준다. 
 ```
-> siege -v -c1 -t120S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 
+ siege -v -c1 -t120S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 
 ```
 
-- AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
-  Registration 서비스의 코드를 수정하고 GIT에 commit 한다. 
+- 동시에 AWS CodeBuild에 연결 되어있는 github의 코드를 commit한다.
   배포 될때까지 잠시 기다린다. 
 
 ![image](https://user-images.githubusercontent.com/26429915/135387210-db904bf8-5e1e-45e5-8d6c-fc95a71c75ec.JPG)
