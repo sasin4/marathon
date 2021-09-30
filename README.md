@@ -708,7 +708,7 @@ DashboardViewHandler.java
 ![image](https://user-images.githubusercontent.com/26429915/135387232-4b500cdd-8913-4c3c-85d0-eeb5db52c660.JPG)
 
 
--	배포된 6개의 Service  확인
+-	배포된 5개의 Service  확인
 ```
 > kubectl get all
 
@@ -805,15 +805,15 @@ public class PayServiceImpl implements PayService {
 
 - 결재 서비스에 지연이 발생하는 경우 결재지연 메세지를 보여주고 장애에 분리되어 Avalablity가 100% 이다. 
 
-- 예약 서비스(reservation)의 log에 아래에서 결재 지연 메세지를 확인한다.
+- 등록 서비스(registrations)의 log에 아래에서 결재 지연 메세지를 확인한다.
 
-- 시스템은 죽지 않고 지속적으로 과도한 부하시 CB 에 의하여 회로가 닫히고 결재 지연중 메세지를 보여주며 고객을 장애로 부터 격리시킴.
+- 시스템은 죽지 않고 지속적으로 과도한 부하시 CB 에 의하여 회로가 닫히고 결재 지연중 메세지를 보여주며 사용자를 장애로 부터 격리시킴.
 
 
 <br/><br/><br/>
 
 ## 오토스케일 아웃
-- 등록서비스(Registration)에 대해  CPU Load 50%를 넘어서면 Replica를 10까지 늘려준다. 
+- 등록서비스(Registration)에 대해  CPU Load 50%를 넘어서면 Replica를 늘려준다. 
 ```
   # buildspec-kubectl.yaml
           cat <<EOF | kubectl apply -f -
@@ -860,6 +860,7 @@ public class PayServiceImpl implements PayService {
 ```
 siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 분당구","topSize":"110","bottomSize":"100","amount":20000}'
 ```
+<br/>
 
 - 결과확인
 
@@ -872,11 +873,11 @@ siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/re
 ## Self Healing
 ### ◆ Liveness- HTTP Probe
 - 시나리오
-  1. Registration 서비스의 Liveness 설정을 확인힌다. 
-  2. Registration 서비스의 Liveness Probe는 actuator의 health 상태를 확인한다.
+  1. Registration 서비스의 Liveness 설정을 확인한다
+  2. Registration 서비스의 Liveness Probe는 actuator의 health 상태를 확인한다
   3. pod의 상태를 모니터링 한다
-  4. Registration 서비스의 Liveness Probe인 actuator를 down 시켜 Registration 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
-  5. Registration 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
+  4. Registration 서비스의 Liveness Probe인 actuator를 down 시켜 서비스가 termination / restart 되는 self healing을 확인한다
+  5. Registration 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다
 
 
 - Registration 서비스의 Liveness probe 설정 확인
@@ -907,15 +908,14 @@ kubectl get deploy reservation -o yaml
 
 ![image](https://user-images.githubusercontent.com/26429915/135387196-783a471d-9a33-454c-b49a-b8066381b299.JPG)
 
-- Liveness Probe Down 설정 및 확인 
-  - Registration Liveness Probe를 Down 상태로 전환한다.
+- Liveness Probe Down 설정 및 확인 후 Registration Liveness Probe를 Down 상태로 전환한다.
 ![image](https://user-images.githubusercontent.com/26429915/135387201-6407dc1c-aced-4280-a3c4-07502122e5d8.JPG)
 
 
-- Probe Fail에 따른 쿠버네티스 동작확인  
+- Probe Fail에 따른 쿠버네티스 동작을 확인 
   - registration 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
   - registration pod의 RESTARTS가 1로 바뀐것을 확인. 
-  - describe 를 통해 해당 pod가 Liveness가 Unhealthy, failed 된 것을 알 수 있다.
+  - 해당 pod가 Liveness가 Unhealthy, failed 된 것을 알 수 있다.
 ![image](https://user-images.githubusercontent.com/26429915/135387203-59454d50-f7d2-46e9-9a94-3ff87202ca9c.JPG)
 ![image](https://user-images.githubusercontent.com/26429915/135387202-ba805b78-03bf-4c73-b037-3a97f177a861.JPG)
 
@@ -924,7 +924,7 @@ kubectl get deploy reservation -o yaml
 ## 무정지 재배포
 ### ◆ Rediness- HTTP Probe
 - 시나리오
-  1. 현재 구동중인 Registration 서비스에 길게(3분) 부하를 준다. 
+  1. 현재 구동중인 Registration 서비스에 길게 부하를 준다. 
   2. reservation pod의 상태를 모니터링
   3. AWS CodeBuild에 연결 되어있는 github로 코드를 commit한다.
   4. Codebuild를 통해 새로운 버전의 Registration이 배포 된다. 
@@ -962,7 +962,7 @@ kubectl get deploy reservation -o yaml
 ![image](https://user-images.githubusercontent.com/26429915/135397301-f63a9f64-2260-441e-ba6c-d0d65e09b722.JPG)
 
 
-- Readiness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avalabilty가 100%가 된다.
+- Readiness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 siege의 Avalabilty가 100%가 된다.
 
 ![image](https://user-images.githubusercontent.com/26429915/135387211-40293b13-f127-47a8-abce-e36d1c18e9ec.JPG)
 
