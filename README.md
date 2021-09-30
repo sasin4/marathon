@@ -130,7 +130,7 @@
 
 ## Event Storming 결과
 
-* MSAEz 로 모델링한 이벤트스토밍 결과: https://labs.msaez.io/#/storming/zm7538qsNkhoDMQ3F0AUMpn1wHS2/8e220fa460d7f3692354e798ad599a22
+* MSAEz 로 모델링한 이벤트스토밍 결과
 <img width="1371" alt="2021-09-30 11 42 52" src="https://user-images.githubusercontent.com/26429915/135400789-7611dd6c-b735-444f-9bd5-debb49d960d4.JPG">
 
 
