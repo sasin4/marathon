@@ -326,24 +326,23 @@ public class Registration {
 ```
 
 
-- Codebuild 후 기능 TEST
-
-# Registration 서비스의 등록 요청
+## Codebuild 후 기능 TEST
+ - Registration 서비스의 등록 요청
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387215-6f9f562e-fc37-4718-8dc7-c3f676a4c7e9.JPG">
 
-# Payment 서비스의 결재 요청
+ - Payment 서비스의 결재 요청
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387219-add5a3b9-89b6-46b7-83d2-90ff3da0976d.JPG">
 
-# RegisterMaster 서비스의 접수 요청
+ - RegisterMaster 서비스의 접수 요청
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387221-ed3c49da-9df2-4177-bd30-eff216eba573.JPG">
 
-# Dashboard 서비스의 조회 기능
+ - Dashboard 서비스의 조회 기능
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387224-f79904e9-2edf-4edd-8896-578cb5361ba2.JPG">
 
-# Registration 서비스의 취소 요청
+ - Registration 서비스의 취소 요청
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387212-1d606539-3520-4e3e-8436-1cf41dc22725.JPG">
 
-# Dashboard 서비스의 조회 기능(Cancel)
+ - Dashboard 서비스의 조회 기능(Cancel)
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387213-9a625812-aaf6-4cb8-b715-3aab735a5270.JPG">
 
 
@@ -410,9 +409,9 @@ Dashboard 서비스의 경우 다른 서비스와 다르게 HSQL DB를 사용하
 
 ## 동기식 호출 과 Fallback 처리
 
-분석단계에서의 조건 중 하나로 등록(registrations)->결제(pays) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 FeignClient 를 이용하여 호출하도록 한다. 
+분석단계에서의 조건 중 하나로 등록(registrations)->결제(payment) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 FeignClient 를 이용하여 호출하도록 한다. 
 
-- 결제 서비스를 호출하기 위하여 FeignClient를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
+- 결제 서비스를 호출하기 위하여 FeignClient를 이용하여 Service 대행 인터페이스를 구현 
 
 ```
 
@@ -478,11 +477,13 @@ public interface PayService {
 ## 비동기식 호출 / 장애격리 / Eventual Consistency
 
 
-결제가 이루어진 후에 Registermaster 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 불필요한 커플링을 최소화한다.
+결제가 이루어진 후에 Registermaster 및 Dashboard 등 타 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 불필요한 커플링을 최소화한다.
  
 - 이를 위하여 결제 이력에 기록을 남긴 후에 곧바로 결제 요청이 되었다는 도메인 이벤트를 카프카로 송출한다. (Publish)
   이때 다른 저장 로직에 의해서 해당 이벤트가 발송되는 것을 방지하기 위해 Status 체크하는 로직을 추가했다.
- 
+
+
+- Payment 서비스의 Status로 구분되는 Publish 구현 
 ```
 
 package marathon;
@@ -682,17 +683,16 @@ DashboardViewHandler.java
 ```
 
 
+
 # 운영
+
 
 ## CI/CD 설정
 각 구현체들은 각자의 AWS의 ECR 에 구성되었고, 사용한 CI/CD 플랫폼은 AWS-CodeBuild를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 buildspec-kubectl.yaml 에 포함되었다.
 
 - 레포지터리 생성 확인
-  - 이미지 변경 필요.
-
 ![image](https://user-images.githubusercontent.com/26429915/135389656-2da72367-f66b-4cc4-9cf1-1fd44c1510b2.JPG)
 
-<br/>
 
 - 생성 할 CodeBuild
   -user08-gateway
@@ -701,6 +701,7 @@ DashboardViewHandler.java
   -user08-registermaster
   -user08-dashboard
 <br/>
+
 
 - 연결된 github에 Commit 진행시 5개의 서비스들 build 진행 여부 및 성공 확인 
 
@@ -724,9 +725,11 @@ pod/siege-pvc                          1/1     Running   0          73m
 
 
 
+
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
 - 시나리오
-  1. 예약(registrations) --> 결재(payment)로 연결을 RESTful Request/Response 로 연동하여 구현 함. 결제 요청이 과도할 경우 CB가 발생하고 fallback으로 결재 지연 메새지를 보여줌으로 장애 격리 시킴.
+  1. 예약(registrations) --> 결재(payment)로 연결을 RESTful Request/Response 로 연동하여 구현 함.
+     결제 요청이 과도할 경우 CB가 발생하고 fallback으로 결재 지연 메새지를 보여줌으로 장애 격리 시킴.
   2. circuit break의 timeout은 610mm 설정. 
   3. Pay 서비스에 임의의 부하 처리.
   4. 부하테스터(seige) 를 통한 circuit break 확인. 
@@ -735,9 +738,12 @@ pod/siege-pvc                          1/1     Running   0          73m
 <br/>
     
 - 서킷 브레이킹 구현
+```
   - Spring FeignClient + Hystrix 옵션을 사용하여 구현함
+```
 
-- Hystrix 를 설정 :  요청처리 쓰레드에서 처리시간이 610 밀리가 넘어서기 시작하여 어느정도 유지되면 CB가 작동하고, 결제 로직 대신 fallback으로 결제 지연 메세지 보여줌으로 장애 격리
+- Hystrix 를 설정 :  처리시간이 610 밀리가 넘어서기 시작하면 CB가 작동하고,
+  결제 로직 대신 fallback으로 결제 지연 메세지 보여줌으로 장애 격리
 ```
 # Registration -> application.yml
 
@@ -751,8 +757,9 @@ hystrix:
     default:
       execution.isolation.thread.timeoutInMilliseconds: 610
 ```
-- Payment 서비스에 임의 부하 처리 - 400 밀리에서 증감 220 밀리 사이에서 부하가 걸리도록 아래 코드 추가
+- Registration -> Payment 서비스에 임의 부하 처리
 ```
+# 400 밀리에서 증감 220 밀리 사이에서 부하가 걸리도록 아래 코드 추가
 # PayController.java
 
 try {
@@ -790,12 +797,12 @@ public class PayServiceImpl implements PayService {
   - Registration 서비스의 log 확인.
 ```
 > siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 분당구","topSize":"110","bottomSize":"100","amount":20000}'
-
+```
 ![image](https://user-images.githubusercontent.com/26429915/135387230-aae3cccb-97b7-47c7-9881-2c0e0774efd9.JPG)
 
 ![image](https://user-images.githubusercontent.com/26429915/135387227-cf4a7720-a5a5-41e6-8de3-0d314bd56eb6.JPG)
 
-```
+
 - 결재 서비스에 지연이 발생하는 경우 결재지연 메세지를 보여주고 장애에 분리되어 Avalablity가 100% 이다. 
 
 - 예약 서비스(reservation)의 log에 아래에서 결재 지연 메세지를 확인한다.
@@ -803,10 +810,12 @@ public class PayServiceImpl implements PayService {
 - 시스템은 죽지 않고 지속적으로 과도한 부하시 CB 에 의하여 회로가 닫히고 결재 지연중 메세지를 보여주며 고객을 장애로 부터 격리시킴.
 
 
+
+
 ## 오토스케일 아웃
 - 등록서비스(Registration)에 대해  CPU Load 50%를 넘어서면 Replica를 10까지 늘려준다. 
-  - buildspec-kubectl.yaml
 ```
+  # buildspec-kubectl.yaml
           cat <<EOF | kubectl apply -f -
           apiVersion: autoscaling/v2beta2
           kind: HorizontalPodAutoscaler
@@ -830,8 +839,8 @@ public class PayServiceImpl implements PayService {
 ```
 
 - 예약서비스(reservation)에 대한 CPU Resouce를 1000m으로 제한 한다.
-  - buildspec-kubectl.yaml
 ```
+  #buildspec-kubectl.yaml
                     resources:
                       limits:
                         cpu: 1000m
@@ -851,11 +860,13 @@ public class PayServiceImpl implements PayService {
 ```
 siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/registrations POST {"name":"HJK100","phoneNo":"010-1234-4256","address":"경기도 성남시 분당구","topSize":"110","bottomSize":"100","amount":20000}'
 ```
+- 결과확인
 ![image](https://user-images.githubusercontent.com/26429915/135387235-3933bf1f-189c-42c9-ac34-3361502dc117.JPG)
 
-```
+
+
 <br/>
-	
+
 ## Self Healing
 ### ◆ Liveness- HTTP Probe
 - 시나리오
@@ -865,7 +876,6 @@ siege -c100 -t30S --content-type "application/json" 'http://Registration:8080/re
   4. Registration 서비스의 Liveness Probe인 actuator를 down 시켜 Registration 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
   5. Registration 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
 
-<br/>
 
 - Registration 서비스의 Liveness probe 설정 확인
 ```
