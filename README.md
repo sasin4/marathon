@@ -116,6 +116,7 @@
 
 <img width="1130" alt="2021-09-30 8 55 49" src="https://user-images.githubusercontent.com/26429915/135387123-b9862387-8a5e-482c-baa0-557e1f3e00a7.JPG">
 
+
 ## TO-BE 조직 (Vertically-Aligned)
 
 <img width="1093" alt="2021-09-30 11 13 12" src="https://user-images.githubusercontent.com/26429915/135387125-8b481db9-e0c5-4378-8c84-44d15c52b155.JPG">
@@ -131,32 +132,26 @@
 <img width="1371" alt="2021-09-30 11 42 52" src="https://user-images.githubusercontent.com/26429915/135387126-5877858b-47a6-407c-8717-05d21714ff04.JPG">
 
 ### 부적격 이벤트 탈락
-
-<img width="1371" alt="2021-09-30 11 43 07" src="https://user-images.githubusercontent.com/26429915/135387128-239fd79d-5104-4ee4-9e14-ebf0c3189adc.JPG">
-
 - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
-- 예약시> 상품이 조회됨 :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
 - 결제시 > 결제 승인 및 승인 거부 : 외부 시스템의 이벤트이므로 제외
-- Store > 상품이 입고됨 : Event 수신 후 Policy hander 처리 대상
-- Supplier > 출고가 취소됨 : 구현 범위 밖이라 제외, Supplier는 상품 출고 이력만 관리
+
 
 ### 액터, 커맨드 부착
 
 <img width="1426" alt="2021-09-30 9 28 38" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
 
+
 ### Aggreggate 및 Bounded Text로 묶기
 
 <img width="1500" alt="2021-09-30 10 01 42" src="https://user-images.githubusercontent.com/26429915/135387105-5b298d62-1f7e-4a96-b60b-764f11420762.JPG">
 
-- Registraion의 예약과 취소, Payment의 결제 요청, 결제 취소, Registermaster의 등록 접수/취소, Goods 발송/취소 등 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 Aggregate을 구성
+- Registration의 예약과 취소, Payment의 결제 요청, 결제 취소, Registermaster의 등록 접수/취소, Goods 발송/취소 등 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 Aggregate을 구성
 
-### 폴리시 부착 (괄호는 수행주체, 전체 연계가 초기에 드러남)
-
-<img width="1551" alt="2021-09-30 10 47 23" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 
 <img width="1498" alt="2021-09-30 10 49 08" src="https://user-images.githubusercontent.com/26429915/135387110-91060713-afb7-4b14-a4ec-18857b67eb94.JPG">
+
 
 ### 완성된 1차 모형
 
@@ -164,20 +159,22 @@
 
     - View Model 추가
 
+
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
 <img width="1448" alt="2021-09-30 11 11 59" src="https://user-images.githubusercontent.com/26429915/135387115-436ac9c6-46c0-4bd7-b8e8-ff5d003cfb9b.JPG">
 
-    - 점장은 상품을 주문한다 (ok)
-    - Supplier는 제품을 배송한다 (ok)
-    - 배송이 되면 상품 갯수가 늘어난다 (ok) 
+    - 사용자는 등록을 신청한다(ok)
+    - 결제를 완료된다 (ok)
+    - 주최측이 등록 정보를 확인하고 Goods를 보낸다(ok) 
 
 
 <img width="1430" alt="2021-09-30 11 16 05" src="https://user-images.githubusercontent.com/26429915/135387116-e47b8186-d102-40e1-9bb0-94d4e1f906cc.JPG">
 
-    - 고객은 예약 내역을 취소한다 (ok)
-    - 예약을 취소하면 결제가 취소된다 (ok)
-    - 예약이 취소되면 상품 예약이 취소된다 (ok)
+    - 사용자는 등록을 취소한다 (ok)
+    - 등록을 취소하면 결제가 취소된다 (ok)
+    - 등록을 취소하면 Goods 발송이 취소된다 (ok)
+
 
 
 ### 비기능 요구사항에 대한 검증
@@ -185,7 +182,7 @@
 <img width="1430" alt="2021-09-30 11 33 01" src="https://user-images.githubusercontent.com/26429915/135387119-a6e5e552-b2f2-4f09-961f-a0150dab9c55.JPG">
 
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
-    - 고객 등록시 결제처리 : 등록 완료 시 결제는 Request-Response 방식 처리
+    - 마라톤 등록 신청 시 결제처리 : 등록 완료 시 결제는 Request-Response 방식 처리
     - 나머지 모든 inter-microservice 트랜잭션: 등록 시 결제로 연결되는 트랜잭션 외에는 모두 Eventual Consistency 를 기본으로 채택함
 
 
@@ -195,14 +192,13 @@
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387120-1b553ff2-a2bf-4052-ac6a-1301966c507f.JPG">
 
 
-    - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
     - 호출관계에서 PubSub 과 Req/Resp 를 구분함
     - 서브 도메인과 바운디드 컨텍스트의 분리:  각 팀의 KPI 별로 아래와 같이 관심 구현 스토리를 나눠가짐
 
 
 # 구현:
 
-분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8080 ~ 8085 이다)
+분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 Business로 대변되는 마이크로 서비스들을 스프링부트로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8080 ~ 8084 이다)
 
 ```
 cd gateway
@@ -224,8 +220,7 @@ mvn spring-boot:run
 
 ## DDD 의 적용
 
-- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 Registration 마이크로 서비스). 
-  이때 가능한 현업에서 사용하는 언어(유비쿼터스 랭귀지)를 영어로 번역하여 사용하였다. 
+- 각 서비스내에 도출된 핵심 Aggregate 객체를 Entity 로 선언하였다: (예시는 Registration 마이크로 서비스).
 
 ```
 
@@ -329,23 +324,10 @@ public class Registration {
 }
 
 ```
-- Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
-```
-
-package marathon;
-
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-
-@RepositoryRestResource(collectionResourceRel="registrations", path="registrations")
-public interface RegistrationRepository extends PagingAndSortingRepository<Registration, Long>{
 
 
-}
-
-```
 - Codebuild 후 기능 TEST
-```
+
 # Registration 서비스의 등록 요청
 <img width="1481" alt="2021-09-30 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387215-6f9f562e-fc37-4718-8dc7-c3f676a4c7e9.JPG">
 
