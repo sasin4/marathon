@@ -959,7 +959,7 @@ kubectl get deploy reservation -o yaml
 
 - pod 상태 모니터링에서 기존 Registration 서비스가 Terminating 되고 새로운 Registration 서비스가 Running하는 것을 확인한다.
 
-![image](https://user-images.githubusercontent.com/26429915/135387208-a8b118c6-5671-4179-b750-4576f866d250.JPG)
+![image](https://user-images.githubusercontent.com/26429915/135397301-f63a9f64-2260-441e-ba6c-d0d65e09b722.JPG)
 
 
 - Readiness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avalabilty가 100%가 된다.
@@ -967,6 +967,8 @@ kubectl get deploy reservation -o yaml
 ![image](https://user-images.githubusercontent.com/26429915/135387211-40293b13-f127-47a8-abce-e36d1c18e9ec.JPG)
 
 
+
+<br/><br/>
 
 ## Persistant Volume Claim
 - 시나리오
@@ -980,17 +982,17 @@ kubectl get deploy reservation -o yaml
 ![image](https://user-images.githubusercontent.com/26429915/135391975-3fa8c9ce-86bb-4c14-b8ab-74bfb248e870.JPG)
 
 
-- provisioner 확인
-- storageClass 등록, 조회
+- provisioner 확인 및 storageClass 등록, 조회
 ![image](https://user-images.githubusercontent.com/26429915/135392360-e41c9395-b8f3-4005-9dde-dcaa37218462.JPG)
 
 
 - pvc 확인
+
 ![image](https://user-images.githubusercontent.com/26429915/135392358-90289027-0e32-40ca-812f-b50f58b95466.JPG)
 
 <br/>
 
-- 각 Deployment의 PVC 생성정보는 buildspec-kubeclt.yaml에 적용되어있다.
+- 각 Deployment의 PVC 생성정보는 buildspec-kubeclt.yaml에 적용되어있음
 ```
                     volumeMounts:
                       - mountPath: "/mnt/aws"
@@ -1032,12 +1034,13 @@ kubectl get deploy reservation -o yaml
 ```
 
 - 각 서비스에서 저장한 Event 정보파일을 동일한 PVC를 사용하는 Pod를 생성하여 배포 후 /mnt/aws에 저장되어 있는지 확인. 
-
+```
 > kubectl apply -f kubectl apply -f https://raw.githubusercontent.com/sasin4/marathon/master/yaml/pod-with-pvc.yaml
 > kubectl get pod
 > kubectl describe pod registrations
 > kubectl exec -it siege-pvc -- /bin/bash
 > ls -al /mnt/aws
+```
 
 ![image](https://user-images.githubusercontent.com/26429915/135387207-bd328393-f6b5-48ec-a083-4babd9630863.JPG)
 
