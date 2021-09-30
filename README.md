@@ -42,7 +42,6 @@
 비기능적 요구사항
 1. 트랜잭션
   - Register 시 결제 과정을 거치며 결제 실패 시 Register가 불가능하다 : Sync 호출
-  - ???고객이 요청한 업무 처리가 실패한 경우 요청 내역을 삭제한다 (Correlation)
 2. 장애격리
   - 주최측 RegisterMaster 접수 기능이 수행되지 않더라도 Register 신청은 365일, 24시간 받을 수 있어야 한다 : Async (event-driven), Eventual Consistency
   - Registration 시스템 접속이 과중 되면 사용자를 잠시 후에 다시 접속하도록 유도한다 : Circuit breaker, Fallback
@@ -115,11 +114,11 @@
 
 ## AS-IS 조직 (Horizontally-Aligned)
 
-<img width="1130" alt="2021-09-12 8 55 49" src="https://user-images.githubusercontent.com/89987635/132986657-418ebe58-2158-4f9e-a237-0bf980efb050.png">
+<img width="1130" alt="2021-09-12 8 55 49" src="https://user-images.githubusercontent.com/26429915/135387123-b9862387-8a5e-482c-baa0-557e1f3e00a7.JPG">
 
 ## TO-BE 조직 (Vertically-Aligned)
 
-<img width="1093" alt="2021-09-12 11 13 12" src="https://user-images.githubusercontent.com/89987635/132991004-2fdfb1de-977f-4a64-8bf8-34d24f29c7e4.png">
+<img width="1093" alt="2021-09-12 11 13 12" src="https://user-images.githubusercontent.com/26429915/135387125-8b481db9-e0c5-4378-8c84-44d15c52b155.JPG">
 
 
 ## Event Storming 결과
@@ -129,11 +128,11 @@
 
 ### 이벤트 도출
 
-<img width="1371" alt="2021-09-12 11 42 52" src="https://user-images.githubusercontent.com/89987635/132992113-eb9523cb-26be-4923-ac26-e79c145bdb60.png">
+<img width="1371" alt="2021-09-12 11 42 52" src="https://user-images.githubusercontent.com/26429915/135387126-5877858b-47a6-407c-8717-05d21714ff04.JPG">
 
 ### 부적격 이벤트 탈락
 
-<img width="1371" alt="2021-09-12 11 43 07" src="https://user-images.githubusercontent.com/89987635/132992128-33fbe62e-2590-42e8-b05f-746ff75d9b95.png">
+<img width="1371" alt="2021-09-12 11 43 07" src="https://user-images.githubusercontent.com/26429915/135387128-239fd79d-5104-4ee4-9e14-ebf0c3189adc.JPG">
 
 - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
 - 예약시> 상품이 조회됨 :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
@@ -143,17 +142,17 @@
 
 ### 액터, 커맨드 부착하여 읽기 좋게
 
-<img width="1426" alt="2021-09-13 9 28 38" src="https://user-images.githubusercontent.com/89987635/133083587-d80e62bc-4e4e-486e-8a05-c44152bc5ec3.png">
+<img width="1426" alt="2021-09-13 9 28 38" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
 
 ### 어그리게잇으로 묶기
 
-<img width="1500" alt="2021-09-13 10 01 42" src="https://user-images.githubusercontent.com/89987635/133088250-5f0c17ed-37ca-412d-9057-48c4ee99a085.png">
+<img width="1500" alt="2021-09-13 10 01 42" src="https://user-images.githubusercontent.com/26429915/135387105-5b298d62-1f7e-4a96-b60b-764f11420762.JPG">
 
 - Registraion의 예약과 취소, Payment의 결제 요청, 결제 취소, Registermaster의 등록 접수/취소, Goods 발송/취소 등 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 Aggregate을 구성
 
 ### 바운디드 컨텍스트로 묶기
 
-<img width="1475" alt="2021-09-13 10 02 53" src="https://user-images.githubusercontent.com/89987635/133088393-55762696-6012-4e8e-8211-cba34cde5064.png">
+<img width="1475" alt="2021-09-13 10 02 53" src="https://user-images.githubusercontent.com/26429915/135387101-b1afbf14-7da3-4b7a-8a8d-a27ef99e6bf6.JPG">
 
     - 도메인 서열 분리 
       - Core Domain:  Regisgtration : 마라톤 등록 같이 접속이 몰리는 경우 Down이 있으면 안되는 핵심 서비스
@@ -162,33 +161,26 @@
 
 ### 폴리시 부착 (괄호는 수행주체, 전체 연계가 초기에 드러남)
 
-<img width="1551" alt="2021-09-13 10 47 23" src="https://user-images.githubusercontent.com/89987635/133095353-70d645ff-a7db-4662-abf4-47358c10375c.png">
+<img width="1551" alt="2021-09-13 10 47 23" src="https://user-images.githubusercontent.com/26429915/135387110-91060713-afb7-4b14-a4ec-18857b67eb94.JPG">
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 
-<img width="1498" alt="2021-09-13 10 49 08" src="https://user-images.githubusercontent.com/89987635/133095646-180e389d-f301-41b0-b8ba-c365944e4287.png">
+<img width="1498" alt="2021-09-13 10 49 08" src="https://user-images.githubusercontent.com/26429915/135387113-46ecafb2-658a-4752-b8f0-d8cec9ea1486.JPG">
 
 ### 완성된 1차 모형
 
-<img width="1469" alt="2021-09-13 11 00 17" src="https://user-images.githubusercontent.com/89987635/133097409-073c5768-bfd9-4688-a0c7-3da74e4463a2.png">
+<img width="1469" alt="2021-09-13 11 00 17" src="https://user-images.githubusercontent.com/26429915/135387115-436ac9c6-46c0-4bd7-b8e8-ff5d003cfb9b.JPG">
 
     - View Model 추가
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
-<img width="1448" alt="2021-09-13 11 11 59" src="https://user-images.githubusercontent.com/89987635/133099363-2a033cc6-8d97-4751-b9e9-424cf316ec3f.png">
+<img width="1448" alt="2021-09-13 11 11 59" src="https://user-images.githubusercontent.com/26429915/135387116-e47b8186-d102-40e1-9bb0-94d4e1f906cc.JPG">
 
     - 점장은 상품을 주문한다 (ok)
     - Supplier는 제품을 배송한다 (ok)
     - 배송이 되면 상품 갯수가 늘어난다 (ok) 
-
-<img width="1430" alt="2021-09-13 11 23 30" src="https://user-images.githubusercontent.com/89987635/133101159-d8ca7260-7063-4bdb-99c4-37ec8a027077.png">
-
-    - 고객은 상품 목록을 조회한다 (ok)
-    - 고객은 상품을 예약한다 (ok)
-    - 고객이 예약한 상품을 결제한다 (ok)
-    - 고객이 방문하여 예약한 상품을 찾아간다 (ok)
-    - 찾아간 상품에 대한 예약은 Pickup으로 표시된다 (ok)
+    
 
 <img width="1430" alt="2021-09-13 11 16 05" src="https://user-images.githubusercontent.com/89987635/133099909-cfa99c23-c9d8-4f95-af6c-9a82bea15910.png">
 
@@ -199,7 +191,7 @@
 
 ### 비기능 요구사항에 대한 검증
 
-<img width="1430" alt="2021-09-13 11 33 01" src="https://user-images.githubusercontent.com/89987635/133102897-b2ef32d3-e1d9-498c-b868-42dd9d2951fc.png">
+<img width="1430" alt="2021-09-13 11 33 01" src="https://user-images.githubusercontent.com/26429915/135387119-a6e5e552-b2f2-4f09-961f-a0150dab9c55.JPG">
 
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
     - 고객 등록시 결제처리 : 등록 완료 시 결제는 Request-Response 방식 처리
@@ -209,7 +201,7 @@
 
 ## 헥사고날 아키텍처 다이어그램 도출
     
-<img width="1481" alt="2021-09-13 11 51 17" src="https://user-images.githubusercontent.com/89987635/133106137-c3ff9789-2d0a-4054-acb4-cb0eab362c14.png">
+<img width="1481" alt="2021-09-13 11 51 17" src="https://user-images.githubusercontent.com/26429915/135387120-1b553ff2-a2bf-4052-ac6a-1301966c507f.JPG">
 
 
     - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
